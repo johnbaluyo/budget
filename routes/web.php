@@ -48,4 +48,5 @@ Route::post('/approvedbudget/update', 'ApprovedBudgetController@update');
 Route::post('/approvedbudget/delete', 'ApprovedBudgetController@delete');
 
 Route::get('/gaa', 'GAAController@index');
+Route::get('/project/{id}', 'GAAController@project')->name('project');
 

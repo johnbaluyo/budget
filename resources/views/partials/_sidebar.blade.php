@@ -37,7 +37,7 @@
                                 Year:
                             </span>
                         </div>
-                        <form class="w-100" id="yearFilterForm" method="GET" action="">
+                        <form class="w-100" id="yearFilterForm" method="GET" action="{{ URL::to('gaa') }}">
                             @php
                                 $years = App\ApprovedBudget::orderBy('year', 'asc')->pluck('year');
                             @endphp
@@ -55,8 +55,7 @@
                     </div>
                 </div><br>
                 <li class="nav-item">
-                    <a class="nav-link {{ Request::is('gaa') ? 'active' : '' }}"
-                        href="{{ URL::to('/gaa') }}">
+                    <a class="nav-link {{ Request::is('gaa') ? 'active' : '' }}" href="{{ URL::to('/gaa') }}">
                         <i class="nav-icon fas fa-hand-holding-usd"></i>
                         <p>
                             GAA
@@ -69,6 +68,19 @@
                         <center>BUDGET TRACKING</center>
                     </h6>
                 </li>
+                @php
+                    $approved_budget = App\ApprovedBudget::where('year', $selectedYear)->first();
+                    $projects = App\Project::where('approved_budget_id', $approved_budget->id ?? '')->get();
+                @endphp
+                @foreach ($projects as $project)
+                    <li class="nav-item">
+                        <a class="nav-link {{ Request::is('project/' . $project->id) ? 'active' : '' }}"
+                            href="{{ route('project', ['id' => $project->id, 'year' => request('year', $selectedYear ?? '')]) }}">
+                            <i class="nav-icon fas fa-project-diagram"></i>
+                            <p>{{ $project->project_name }}</p>
+                        </a>
+                    </li>
+                @endforeach
             </ul>
         </nav>
         <hr class="bg-light">

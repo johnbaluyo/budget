@@ -10,12 +10,8 @@
         @elseif ($level >= 3)
             -
         @endif
-        &nbsp;
-        @if (Request::is('gaa*'))
-            {{ $category['category_name'] }} {{ $level === 0 ? '(' . $category['project']['project_name'] . ')' : '' }}
-        @else
-            {{ $category['category_name'] }}
-        @endif
+        &nbsp;{{ $category['item_of_expenditure'] }}
+
     </td>
     <td>
         @if ($category['allocation'] > 0)
@@ -57,7 +53,7 @@
     <td class="d-flex justify-content-end">
         @if (empty($category['children']) || $category['allocation'] > 0)
             <button class="btn btn-sm btn-success"
-                onclick="showTracking(`{{ $category['id'] }}`,`{{ $category['category_name'] }}`)">Tracking</button>&nbsp;|&nbsp;
+                onclick="showTracking(`{{ $category['id'] }}`,`{{ $category['item_of_expenditure'] }}`)">Tracking</button>&nbsp;|&nbsp;
         @endif
         <div class="btn-group" role="group">
             <button class="btn btn-sm btn-ssi" id="btnGroupDrop1" data-bs-toggle="dropdown">
@@ -67,7 +63,7 @@
                 @if (Request::is('gaa*'))
                     <li>
                         <a class="dropdown-item bg-primary"
-                            onclick="addToProject(`{{ $category['id'] }}`,`{{ $category['category_name'] }}`)">
+                            onclick="addToProject(`{{ $category['id'] }}`,`{{ $category['item_of_expenditure'] }}`)">
                             Add item to project
                         </a>
                     </li>
@@ -79,7 +75,7 @@
                 </li>
                 <li>
                     <a class="dropdown-item"
-                        onclick="addSubItem(`{{ $category['id'] }}`,`{{ $category['category_name'] }}`)">
+                        onclick="addSubItem(`{{ $category['id'] }}`,`{{ $category['item_of_expenditure'] }}`)">
                         Add sub-item
                     </a>
                 </li>
@@ -90,6 +86,6 @@
 
 @if (!empty($category['children']))
     @foreach ($category['children'] as $child)
-        @include('categories._category_index_row', ['category' => $child, 'level' => $level + 1])
+        @include('gaa.row', ['category' => $child, 'level' => $level + 1])
     @endforeach
 @endif

@@ -23,4 +23,9 @@ class GAAProjectExpenses extends Model
     {
         return $this->belongsTo(GAAProject::class, 'gaa_project_id', 'id');
     }
+
+    public function division()
+    {
+        return $this->hasOne(Division::class, 'id', 'division_id');
+    }
 }
