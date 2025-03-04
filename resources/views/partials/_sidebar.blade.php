@@ -40,13 +40,15 @@
                         <form class="w-100" id="yearFilterForm" method="GET" action="{{ URL::to('gaa') }}">
                             @php
                                 $years = App\ApprovedBudget::orderBy('year', 'asc')->pluck('year');
+                                $currentYear = now()->year;
+                                $selectedYear = request('year', session('selected_year', $currentYear));
+                                session(['selected_year' => $selectedYear]);
                             @endphp
                             <select class="form-select w-100" id="year" name="year"
                                 onchange="document.getElementById('yearFilterForm').submit();">
                                 @foreach ($years as $year)
-                                    @php $selectedYear = request('year', $year ?? ''); @endphp
                                     <option value="{{ $year }}"
-                                        {{ request('year', $selectedYear ?? '') == $year ? 'selected' : '' }}>
+                                        {{ $selectedYear == $year ? 'selected' : '' }}>
                                         {{ $year }}
                                     </option>
                                 @endforeach

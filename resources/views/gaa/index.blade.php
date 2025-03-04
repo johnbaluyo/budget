@@ -94,31 +94,39 @@
         aria-labelledby="projectModalLabel" aria-hidden="true" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <form action="{{ URL::to('/categories/saveProject') }}" method="post">
+                <form action="{{ URL::to('/project/saveItemToProject') }}" method="post">
                     @csrf
+                    <input id="year" name="year" type="hidden" value="{{ $selectedYear }}">
+                    <input id="gaa_id" name="gaa_id" type="hidden">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="projectModalLabel">Add Project for {{ $selectedYear }}</h5>
+                        <h5 class="modal-title" id="projectModalLabel">Add Expenditure to Project</h5>
                         <button class="btn-close" data-bs-dismiss="modal" type="button" aria-label="Close"></button>
                     </div>
-                    <input id="year" name="year" type="hidden" value="{{ $selectedYear }}">
                     <div class="modal-body">
                         <div class="row form-group">
                             <div class="col-sm">
                                 <label>Project Name:</label>
-                                <input class="form-control" id="project_name" name="project_name" type="text" required>
+                                <input class="form-control" id="item_of_expenditure" name="item_of_expenditure" type="text" required>
                             </div>
                         </div>
                         <div class="row form-group">
                             <div class="col-sm">
-                                <label>Division:</label>
-                                <select class="form-select" id="division_id" name="division_id">
-                                    <option value="" selected><small>-select division-</small>
-                                    </option>
-                                    @foreach ($divisions as $division)
-                                        <option value="{{ $division->id }}">{{ $division->division_acronym }}
-                                        </option>
+                                <label>Project Name:</label>
+                                <input class="form-control" id="project_name" name="project_name" type="text" list="projectList" required>
+                                <datalist id="projectList">
+                                    @php
+                                        $projects = DB::table('projects')
+                                            ->where('approved_budget_id', function ($query) use ($selectedYear) {
+                                                $query->select('id')
+                                                      ->from('approved_budget')
+                                                      ->where('year', $selectedYear);
+                                            })
+                                            ->get();
+                                    @endphp
+                                    @foreach ($projects as $project)
+                                        <option value="{{ $project->project_name }}"></option>
                                     @endforeach
-                                </select>
+                                </datalist>
                             </div>
                         </div>
                     </div>
@@ -165,7 +173,7 @@
                             <label>Realign funds to:</label>
                             <select class="form-select" id="realign_category_id" name="realign_category_id">
                                 <option value="0" selected>- Select Item -</option>
-                                @if(!empty($dropdownData))
+                                @if (!empty($dropdownData))
                                     @foreach ($dropdownData as $category)
                                         @include('gaa.dropdown', [
                                             'category' => $category,

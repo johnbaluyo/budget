@@ -16,7 +16,6 @@ class GAAController extends Controller
         $currentYear = date('Y');
         $selectedYear = $request->get('year', $currentYear);
         $divisions = Division::all();
-
         $approved_budget = ApprovedBudget::with([
             'gaa',
             'gaa.gaaProjects',
@@ -24,9 +23,7 @@ class GAAController extends Controller
         ])
             ->where('year', $selectedYear)
             ->first();
-        // return response()->json($approved_budget);
 
-        // Collect parent categories
         $parents = collect();
         foreach ($approved_budget['gaa'] as $gaa_item) {
             $parent = $gaa_item->parentCategory;
@@ -189,4 +186,14 @@ class GAAController extends Controller
         // return response()->json($categoryTree);
         return view('gaa.project', compact('categoryTree', 'selectedYear', 'divisions'));
     }
+
+    public function saveItemToProject(Request $request)
+    {
+        $project = Project::find($request->project_id);
+        $project->gaa_id = $request->gaa_id;
+        $project->save();
+        return redirect()->back()
+            ->with('message', 'Item successfully assigned to project: ' . $project->project_name)
+            ->with('color', 'success');
+    }   
 }

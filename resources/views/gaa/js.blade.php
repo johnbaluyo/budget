@@ -400,4 +400,8 @@
             $('#division_id').val('');
             $('#allocation').val('');
         }
+
+        function addToProject(){
+            
+        }
     </script>
