@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\ApprovedBudget;
 use App\Division;
 use App\GAA;
+use App\GAAProject;
 use App\Project;
 use Illuminate\Http\Request;
 
@@ -152,7 +153,7 @@ class GAAController extends Controller
 
         if (!$approved_budget) {
             $msg = Project::find($projectId);
-            return redirect()->back()
+            return redirect('/gaa')
                 ->with('message', 'Please assign an item from GAA to project: ' . $msg->project_name)
                 ->with('color', 'warning');
         }
@@ -184,16 +185,75 @@ class GAAController extends Controller
 
         $categoryTree = $this->buildTree($sortedgaa);
         // return response()->json($categoryTree);
-        return view('gaa.project', compact('categoryTree', 'selectedYear', 'divisions'));
+        return view('gaa.project', compact('categoryTree', 'selectedYear', 'divisions', 'projectId'));
     }
 
     public function saveItemToProject(Request $request)
     {
         $project = Project::find($request->project_id);
-        $project->gaa_id = $request->gaa_id;
+        $project->gaa_id = $request->item_to_project_gaa_id;
         $project->save();
         return redirect()->back()
             ->with('message', 'Item successfully assigned to project: ' . $project->project_name)
             ->with('color', 'success');
-    }   
+    }
+
+    public function delete(Request $request)
+    {
+        try {
+            $model = $request->type == 1 ? GAA::find($request->gaa_id) : GAAProject::where('project_id', $request->project_id)->where('gaa_id', $request->gaa_id);
+            $model->delete();
+            return response()->json('success');
+        } catch (\Exception $e) {
+            return response()->json($e->getMessage());
+        }
+    }
+
+    public function store(Request $request)
+    {
+        try {
+            $check = GAA::where([
+                ['item_of_expenditure', $request->item_of_expenditure],
+                ['parent_id', $request->parent_id],
+                ['object_type', $request->object_type],
+                ['fund_cluster', $request->fund_cluster],
+            ])->when($request->gaa_id, function ($query) use ($request) {
+                return $query->where('id', '<>', $request->gaa_id);
+            })->first();
+
+            if ($check) {
+                return redirect()->back()->with([
+                    'message' => 'Item already exists.',
+                    'color' => 'warning'
+                ]);
+            }
+
+            $approved_budget_id = ApprovedBudget::where('year', date('Y'))->first()->id;
+            $model = GAA::findOrNew($request->gaa_id);
+            $model->item_of_expenditure = $request->item_of_expenditure;
+            $model->object_type = $request->object_type;
+            $model->fund_cluster = $request->fund_cluster;
+            $model->division_id = $request->division_id;
+            $model->budget_allocation = $request->allocation;
+            $model->remarks = $request->remarks;
+            $model->parent_id = $request->parent_id;
+            $model->approved_budget_id = $approved_budget_id;
+            $model->save();
+            return redirect()->back()->with([
+                'message' => 'Record saved successfully.',
+                'color' => 'success'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json($e->getMessage());
+        }
+    }
+
+    public function edit(Request $request)
+    {
+        try {
+            return response()->json(GAA::find($request->gaa_id));
+        } catch (\Exception $e) {
+            return response()->json($e->getMessage());
+        }
+    }
 }

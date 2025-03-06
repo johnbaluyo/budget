@@ -62,23 +62,31 @@
             <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
                 @if (Request::is('gaa*'))
                     <li>
-                        <a class="dropdown-item bg-primary"
+                        <a class="dropdown-item bg-success"
                             onclick="addToProject(`{{ $category['id'] }}`,`{{ $category['item_of_expenditure'] }}`)">
                             Add item to project
                         </a>
                     </li>
                 @endif
                 <li>
-                    <a class="dropdown-item" onclick="_edit({{ $category['id'] }})">
+                    <a class="dropdown-item" onclick="editGaaItem({{ $category['id'] }})">
                         Edit details
                     </a>
                 </li>
                 <li>
                     <a class="dropdown-item"
-                        onclick="addSubItem(`{{ $category['id'] }}`,`{{ $category['item_of_expenditure'] }}`)">
+                        onclick="addSubItem(`{{ $category['id'] }}`,`{{ $category['item_of_expenditure'] }}`,`{{ $category['object_type'] }}`)">
                         Add sub-item
                     </a>
                 </li>
+                @if (Request::is('project*') || Request::is('gaa*'))
+                    <li>
+                        <a class="dropdown-item bg-danger"
+                            onclick="_delete({{ $category['id'] }}, {{ Request::is('project*') ? 2 : 1 }})">
+                            {{ Request::is('project*') ? 'Remove item from Project' : 'Delete item from GAA' }}
+                        </a>
+                    </li>
+                @endif
             </ul>
         </div>
     </td>

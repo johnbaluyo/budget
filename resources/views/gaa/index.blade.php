@@ -34,8 +34,8 @@
         <div class="card-body">
             <div class="row form-group">
                 <div class="col-sm">
-                    <button class="btn btn-success" onclick="addProject()">
-                        <span class="fa fa-plus"></span> Add Project
+                    <button class="btn btn-success" onclick="addGaa()">
+                        <span class="fa fa-plus"></span> Add Item
                     </button>
                     <button class="btn btn-ssi float-right" onclick="printTable()">
                         <span class="fa fa-print"></span> Print Table
@@ -43,6 +43,7 @@
                     <div class="tooltip"></div>
                 </div>
             </div>
+            <input id="project_id" name="project_id" type="hidden" value="0">
             <div class="row form-group">
                 <div class="col-sm">
                     <table class="table table-bordered" id="budgetTable">
@@ -88,7 +89,76 @@
         </div>
     </div>
 
-    {{-- add project modal --}}
+    {{-- add item to gaa --}}
+
+    <div class="modal fade" id="GAAitemModal" data-bs-backdrop="static" data-bs-keyboard="false"
+        aria-labelledby="GAAitemLabel" aria-hidden="true" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <form action="{{ URL::to('/gaa/store') }}" method="post">
+                    @csrf
+                    <input id="gaa_id" name="gaa_id" type="hidden">
+                    <input id="parent_id" name="parent_id" type="hidden">
+                    <input id="year" name="year" type="hidden" value="{{ $selectedYear }}">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="GAAitemLabel">GAA item details:</h5>
+                        <button class="btn-close" data-bs-dismiss="modal" type="button" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row form-group">
+                            <div class="col-sm">
+                                <label>Item of Expenditure:</label>
+                                <input class="form-control" id="item_of_expenditure" name="item_of_expenditure"
+                                    type="text" required>
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-sm">
+                                <label>Division:</label>
+                                <select class="form-select" id="division_id" name="division_id">
+                                    <option value="" selected>-select division-</option>
+                                    @foreach ($divisions as $division)
+                                        <option value="{{ $division->id }}">{{ $division->division_acronym }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-sm">
+                                <label>Fund Cluster</label>
+                                <input class="form-control" name="fund_cluster" type="text" value="RAF-01"
+                                    style="flex-grow: 0.5;" placeholder="Fund Cluster" readonly>
+                            </div>
+                            <div class="col-sm">
+                                <label>Object Type</label>
+                                <select class="form-select" id="object_type" name="object_type">
+                                    <option>MOOE</option>
+                                    <option>CO</option>
+                                    <option>PS</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-sm">
+                                <label>Budget Allocation:</label>
+                                <input class="form-control" id="allocation" name="allocation" type="number">
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-sm">
+                                <label>Remarks:</label>
+                                <input class="form-control" id="remarks" name="remarks" type="text">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-success mt-3">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {{-- add item to project modal --}}
 
     <div class="modal fade" id="projectModal" data-bs-backdrop="static" data-bs-keyboard="false"
         aria-labelledby="projectModalLabel" aria-hidden="true" tabindex="-1">
@@ -97,29 +167,32 @@
                 <form action="{{ URL::to('/project/saveItemToProject') }}" method="post">
                     @csrf
                     <input id="year" name="year" type="hidden" value="{{ $selectedYear }}">
-                    <input id="gaa_id" name="gaa_id" type="hidden">
+                    <input id="item_to_project_gaa_id" name="item_to_project_gaa_id" type="hidden">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="projectModalLabel">Add Expenditure to Project</h5>
+                        <h5 class="modal-title" id="projectModalLabel">Add item of Expenditure to Project</h5>
                         <button class="btn-close" data-bs-dismiss="modal" type="button" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <div class="row form-group">
                             <div class="col-sm">
                                 <label>Project Name:</label>
-                                <input class="form-control" id="item_of_expenditure" name="item_of_expenditure" type="text" required>
+                                <input class="form-control" id="item_of_expenditure" name="item_of_expenditure"
+                                    type="text" required>
                             </div>
                         </div>
                         <div class="row form-group">
                             <div class="col-sm">
                                 <label>Project Name:</label>
-                                <input class="form-control" id="project_name" name="project_name" type="text" list="projectList" required>
+                                <input class="form-control" id="project_name" name="project_name" type="text"
+                                    list="projectList" required>
                                 <datalist id="projectList">
                                     @php
                                         $projects = DB::table('projects')
                                             ->where('approved_budget_id', function ($query) use ($selectedYear) {
-                                                $query->select('id')
-                                                      ->from('approved_budget')
-                                                      ->where('year', $selectedYear);
+                                                $query
+                                                    ->select('id')
+                                                    ->from('approved_budget')
+                                                    ->where('year', $selectedYear);
                                             })
                                             ->get();
                                     @endphp

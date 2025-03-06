@@ -43,6 +43,7 @@
                     <div class="tooltip"></div>
                 </div>
             </div>
+            <input id="project_id" name="project_id" type="hidden" value="{{ $projectId }}">
             <div class="row form-group">
                 <div class="col-sm">
                     <table class="table table-bordered" id="budgetTable">

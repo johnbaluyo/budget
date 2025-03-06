@@ -31,7 +31,7 @@
                 </li>
                 <hr class="bg-light">
                 <div class="form-inline w-100">
-                    <div class="input-group w-100" data-widget="sidebar-search">
+                    <div class="input-group w-100">
                         <div class="input-group-append">
                             <span class="btn btn-sidebar btn-secondary">
                                 Year:
