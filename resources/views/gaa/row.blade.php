@@ -63,7 +63,7 @@
                 @if (Request::is('gaa*'))
                     <li>
                         <a class="dropdown-item bg-success"
-                            onclick="addToProject(`{{ $category['id'] }}`,`{{ $category['item_of_expenditure'] }}`)">
+                            onclick="addItemToProject(`{{ $category['id'] }}`,`{{ $category['item_of_expenditure'] }}`)">
                             Add item to project
                         </a>
                     </li>

@@ -26,26 +26,28 @@ class GAAController extends Controller
             ->first();
 
         $parents = collect();
-        foreach ($approved_budget['gaa'] as $gaa_item) {
-            $parent = $gaa_item->parentCategory;
-            while ($parent) {
-                if (!$parents->contains('id', $parent->id)) {
-                    $parents->push($parent);
+        if ($approved_budget) {
+            foreach ($approved_budget['gaa'] as $gaa_item) {
+                $parent = $gaa_item->parentCategory;
+                while ($parent) {
+                    if (!$parents->contains('id', $parent->id)) {
+                        $parents->push($parent);
+                    }
+                    $parent = $parent->parentCategory;
                 }
-                $parent = $parent->parentCategory;
             }
+
+            $filteredgaa = $approved_budget['gaa']->merge($parents)->unique('id');
+            $topLevelgaa = $filteredgaa->where('parent_id', null)
+                ->sortByDesc('object_type');
+            $sortedgaa = $topLevelgaa->merge(
+                $filteredgaa->where('parent_id', '!=', null)
+            );
+
+            $categoryTree = $this->buildTree($sortedgaa);
+        } else {
+            return redirect('/approvedbudget');
         }
-
-        $filteredgaa = $approved_budget['gaa']->merge($parents)->unique('id');
-        $topLevelgaa = $filteredgaa->where('parent_id', null)
-            ->sortByDesc('object_type');
-        $sortedgaa = $topLevelgaa->merge(
-            $filteredgaa->where('parent_id', '!=', null)
-        );
-
-        $categoryTree = $this->buildTree($sortedgaa);
-        // $dropdownData = $this->dropdownData($selectedYear);
-        // return response()->json($categoryTree);
         return view('gaa.index', compact('categoryTree', 'selectedYear', 'divisions'));
     }
 
@@ -190,9 +192,22 @@ class GAAController extends Controller
 
     public function saveItemToProject(Request $request)
     {
-        $project = Project::find($request->project_id);
-        $project->gaa_id = $request->item_to_project_gaa_id;
-        $project->save();
+        $approved_budget = ApprovedBudget::where('year', $request->year)->first();
+        $check_project = Project::where('project_name', $request->project_name)
+            ->where('approved_budget_id', $approved_budget->id)
+            ->first();
+        if (!$check_project) {
+            $project = new Project();
+            $project->project_name = $request->project_name;
+            $project->approved_budget_id = $approved_budget->id;
+            $project->save();
+        } else {
+            $project = $check_project;
+        }
+        $gaa_project = new GAAProject();
+        $gaa_project->project_id = $project->id;
+        $gaa_project->gaa_id = $request->item_to_project_gaa_id;
+        $gaa_project->save();
         return redirect()->back()
             ->with('message', 'Item successfully assigned to project: ' . $project->project_name)
             ->with('color', 'success');

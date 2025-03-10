@@ -52,4 +52,4 @@ Route::post('/gaa/delete', 'GAAController@delete');
 Route::post('/gaa/store', 'GAAController@store');
 Route::post('/gaa/edit', 'GAAController@edit');
 Route::get('/project/{id}', 'GAAController@project')->name('project');
-Route::get('/project/saveItemToProject', 'GAAController@saveItemToProject');
+Route::post('/project/saveItemToProject', 'GAAController@saveItemToProject');
