@@ -26,26 +26,28 @@ class GAAController extends Controller
             ->first();
 
         $parents = collect();
-        foreach ($approved_budget['gaa'] as $gaa_item) {
-            $parent = $gaa_item->parentCategory;
-            while ($parent) {
-                if (!$parents->contains('id', $parent->id)) {
-                    $parents->push($parent);
+        if ($approved_budget) {
+            foreach ($approved_budget['gaa'] as $gaa_item) {
+                $parent = $gaa_item->parentCategory;
+                while ($parent) {
+                    if (!$parents->contains('id', $parent->id)) {
+                        $parents->push($parent);
+                    }
+                    $parent = $parent->parentCategory;
                 }
-                $parent = $parent->parentCategory;
             }
+
+            $filteredgaa = $approved_budget['gaa']->merge($parents)->unique('id');
+            $topLevelgaa = $filteredgaa->where('parent_id', null)
+                ->sortByDesc('object_type');
+            $sortedgaa = $topLevelgaa->merge(
+                $filteredgaa->where('parent_id', '!=', null)
+            );
+
+            $categoryTree = $this->buildTree($sortedgaa);
+        } else {
+            return redirect('/approvedbudget');
         }
-
-        $filteredgaa = $approved_budget['gaa']->merge($parents)->unique('id');
-        $topLevelgaa = $filteredgaa->where('parent_id', null)
-            ->sortByDesc('object_type');
-        $sortedgaa = $topLevelgaa->merge(
-            $filteredgaa->where('parent_id', '!=', null)
-        );
-
-        $categoryTree = $this->buildTree($sortedgaa);
-        // $dropdownData = $this->dropdownData($selectedYear);
-        // return response()->json($categoryTree);
         return view('gaa.index', compact('categoryTree', 'selectedYear', 'divisions'));
     }
 
