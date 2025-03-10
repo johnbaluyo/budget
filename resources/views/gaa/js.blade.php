@@ -356,14 +356,10 @@
             printWindow.print();
         }
 
-        function addItemToProject() {
-            $('#projectItemModal').modal('toggle');
-            $('#sub_category_id').val();
-            $('#projectItemModalLabel').html('Add Item to List');
-            $('#category_id').val('');
-            $('#category_name').val('');
-            $('#division_id').val('');
-            $('#allocation').val('');
+        function addItemToProject(gaa_id, item_of_expenditure) {
+            $('#projectModal').modal('toggle');
+            $('#item_to_project_gaa_id').val(gaa_id);
+            $('#projectModalLabel').html(item_of_expenditure);
         }
 
         function addGaa() {

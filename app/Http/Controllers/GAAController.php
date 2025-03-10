@@ -190,9 +190,22 @@ class GAAController extends Controller
 
     public function saveItemToProject(Request $request)
     {
-        $project = Project::find($request->project_id);
-        $project->gaa_id = $request->item_to_project_gaa_id;
-        $project->save();
+        $approved_budget = ApprovedBudget::where('year', $request->year)->first();
+        $check_project = Project::where('project_name', $request->project_name)
+            ->where('approved_budget_id', $approved_budget->id)
+            ->first();
+        if (!$check_project) {
+            $project = new Project();
+            $project->project_name = $request->project_name;
+            $project->approved_budget_id = $approved_budget->id;
+            $project->save();
+        } else {
+            $project = $check_project;
+        }
+        $gaa_project = new GAAProject();
+        $gaa_project->project_id = $project->id;
+        $gaa_project->gaa_id = $request->item_to_project_gaa_id;
+        $gaa_project->save();
         return redirect()->back()
             ->with('message', 'Item successfully assigned to project: ' . $project->project_name)
             ->with('color', 'success');

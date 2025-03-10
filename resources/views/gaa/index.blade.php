@@ -25,7 +25,7 @@
                 <div class="col-sm-4">
                     <div class="row align-items-center">
                         <div class="col-auto">
-                            <label class="form-label mb-0" for="year">List of gaa</label>
+                            <label class="form-label mb-0" for="year">List Expenditures</label>
                         </div>
                     </div>
                 </div>
@@ -169,17 +169,10 @@
                     <input id="year" name="year" type="hidden" value="{{ $selectedYear }}">
                     <input id="item_to_project_gaa_id" name="item_to_project_gaa_id" type="hidden">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="projectModalLabel">Add item of Expenditure to Project</h5>
+                        <h5 class="modal-title">Assign Expenditure: <span id="projectModalLabel"></span></h5>
                         <button class="btn-close" data-bs-dismiss="modal" type="button" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <div class="row form-group">
-                            <div class="col-sm">
-                                <label>Project Name:</label>
-                                <input class="form-control" id="item_of_expenditure" name="item_of_expenditure"
-                                    type="text" required>
-                            </div>
-                        </div>
                         <div class="row form-group">
                             <div class="col-sm">
                                 <label>Project Name:</label>
