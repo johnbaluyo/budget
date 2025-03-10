@@ -78,10 +78,6 @@
             }
         }
 
-        function showmodal() {
-            $('#expenseModal').modal('toggle');
-        }
-
         function showTracking(category_id, expense_name) {
             $('#trackingModal').modal('toggle');
             $('#realignCheckbox').prop('checked', false);
@@ -160,9 +156,6 @@
             });
         }
 
-
-
-
         function updateTracking(type) {
             const trackingCategoryId = $('#tracking_category_id').val();
             const amount = $('#amount').val();
@@ -222,35 +215,15 @@
             });
         }
 
-        function _edit(category_id) {
-            var formData = new FormData();
-            formData.append('category_id', category_id);
-            $.ajax({
-                url: "{{ URL::to('categories/edit') }}",
-                method: 'post',
-                data: formData,
-                dataType: 'json',
-                success: function(response) {
-                    $('#projectItemModal').modal('show');
-                    $('#projectItemModalLabel').html('Edit Details');
-                    $('#sub_category_id').val(response.sub_category_id);
-                    $('#category_id').val(response.id);
-                    $('#category_name').val(response.category_name);
-                    $('#division_id').val(response.division_id);
-                    $('#object_type').val(response.object_type);
-                    $('#allocation').val(response.allocation);
-                    $('#fund_cluster').val(response.fund_cluster);
-                },
-                cache: false,
-                contentType: false,
-                processData: false
-            })
-        }
-
-        function _delete(category_id) {
+        function _delete(gaa_id, type) {
+            if (type === 1) {
+                var message = 'NOTE: This includes sub-item(s) and items assigned into project(s)';
+            } else {
+                var message = 'NOTE: This item will be removed from this project';
+            }
             Swal.fire({
                 title: 'Delete this record?',
-                text: "This item will be deleted as well as its sub-items.",
+                text: message,
                 input: 'text',
                 inputPlaceholder: 'Type "CONFIRM" to proceed',
                 inputAttributes: {
@@ -272,9 +245,11 @@
             }).then((result) => {
                 if (result.value) {
                     var formData = new FormData();
-                    formData.append('category_id', category_id);
+                    formData.append('gaa_id', gaa_id);
+                    formData.append('type', type);
+                    formData.append('project_id', $('#project_id').val());
                     $.ajax({
-                        url: "{{ URL::to('categories/delete') }}",
+                        url: "{{ URL::to('gaa/delete') }}",
                         method: 'post',
                         data: formData,
                         dataType: 'json',
@@ -391,13 +366,51 @@
             $('#allocation').val('');
         }
 
-        function addSubItem(category_id, category_name) {
-            $('#projectItemModal').modal('toggle');
-            $('#projectItemModalLabel').html('Sub Item for: ' + category_name);
-            $('#sub_category_id').val(category_id);
-            $('#category_id').val('');
-            $('#category_name').val('');
+        function addGaa() {
+            $('#GAAitemModal').modal('toggle');
+            $('#GAAitemLabel').html('GAA Item details:');
+            $('#gaa_id').val('');
+            $('#parent_id').val('');
+            $('#item_of_expenditure').val('');
             $('#division_id').val('');
             $('#allocation').val('');
+            $('#remarks').val('');
+        }
+
+        function editGaaItem(gaa_id) {
+            var formData = new FormData();
+            formData.append('gaa_id', gaa_id);
+            $.ajax({
+                url: "{{ URL::to('gaa/edit') }}",
+                method: 'post',
+                data: formData,
+                dataType: 'json',
+                success: function(response) {
+                    $('#GAAitemModal').modal('toggle');
+                    $('#GAAitemLabel').html('GAA Item details:');
+                    $('#gaa_id').val(response.id);
+                    $('#parent_id').val(response.parent_id);
+                    $('#item_of_expenditure').val(response.item_of_expenditure);
+                    $('#division_id').val(response.division_id);
+                    $('#object_type').val(response.object_type);
+                    $('#allocation').val(response.budget_allocation);
+                    $('#remarks').val(response.remarks);
+                },
+                cache: false,
+                contentType: false,
+                processData: false
+            })
+        }
+
+        function addSubItem(gaa_id, item_of_expenditure, object_type) {
+            $('#GAAitemModal').modal('toggle');
+            $('#GAAitemLabel').html('Sub item for: ' + item_of_expenditure);
+            $('#gaa_id').val('');
+            $('#parent_id').val(gaa_id);
+            $('#item_of_expenditure').val('');
+            $('#division_id').val('');
+            $('#object_type').val(object_type);
+            $('#allocation').val('');
+            $('#remarks').val('');
         }
     </script>

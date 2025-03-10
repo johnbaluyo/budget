@@ -34,8 +34,8 @@
         <div class="card-body">
             <div class="row form-group">
                 <div class="col-sm">
-                    <button class="btn btn-success" onclick="addProject()">
-                        <span class="fa fa-plus"></span> Add Project
+                    <button class="btn btn-success" onclick="addGaa()">
+                        <span class="fa fa-plus"></span> Add Item
                     </button>
                     <button class="btn btn-ssi float-right" onclick="printTable()">
                         <span class="fa fa-print"></span> Print Table
@@ -43,6 +43,7 @@
                     <div class="tooltip"></div>
                 </div>
             </div>
+            <input id="project_id" name="project_id" type="hidden" value="0">
             <div class="row form-group">
                 <div class="col-sm">
                     <table class="table table-bordered" id="budgetTable">
@@ -76,7 +77,7 @@
                                         </td>
                                     </tr>
                                 @endif
-                                @include('categories.row', [
+                                @include('gaa.row', [
                                     'category' => $category,
                                     'level' => 0,
                                 ])
@@ -88,37 +89,117 @@
         </div>
     </div>
 
-    {{-- add project modal --}}
+    {{-- add item to gaa --}}
 
-    <div class="modal fade" id="projectModal" data-bs-backdrop="static" data-bs-keyboard="false"
-        aria-labelledby="projectModalLabel" aria-hidden="true" tabindex="-1">
+    <div class="modal fade" id="GAAitemModal" data-bs-backdrop="static" data-bs-keyboard="false"
+        aria-labelledby="GAAitemLabel" aria-hidden="true" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <form action="{{ URL::to('/categories/saveProject') }}" method="post">
+                <form action="{{ URL::to('/gaa/store') }}" method="post">
                     @csrf
+                    <input id="gaa_id" name="gaa_id" type="hidden">
+                    <input id="parent_id" name="parent_id" type="hidden">
+                    <input id="year" name="year" type="hidden" value="{{ $selectedYear }}">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="projectModalLabel">Add Project for {{ $selectedYear }}</h5>
+                        <h5 class="modal-title" id="GAAitemLabel">GAA item details:</h5>
                         <button class="btn-close" data-bs-dismiss="modal" type="button" aria-label="Close"></button>
                     </div>
-                    <input id="year" name="year" type="hidden" value="{{ $selectedYear }}">
                     <div class="modal-body">
                         <div class="row form-group">
                             <div class="col-sm">
-                                <label>Project Name:</label>
-                                <input class="form-control" id="project_name" name="project_name" type="text" required>
+                                <label>Item of Expenditure:</label>
+                                <input class="form-control" id="item_of_expenditure" name="item_of_expenditure"
+                                    type="text" required>
                             </div>
                         </div>
                         <div class="row form-group">
                             <div class="col-sm">
                                 <label>Division:</label>
                                 <select class="form-select" id="division_id" name="division_id">
-                                    <option value="" selected><small>-select division-</small>
-                                    </option>
+                                    <option value="" selected>-select division-</option>
                                     @foreach ($divisions as $division)
                                         <option value="{{ $division->id }}">{{ $division->division_acronym }}
                                         </option>
                                     @endforeach
                                 </select>
+                            </div>
+                            <div class="col-sm">
+                                <label>Fund Cluster</label>
+                                <input class="form-control" name="fund_cluster" type="text" value="RAF-01"
+                                    style="flex-grow: 0.5;" placeholder="Fund Cluster" readonly>
+                            </div>
+                            <div class="col-sm">
+                                <label>Object Type</label>
+                                <select class="form-select" id="object_type" name="object_type">
+                                    <option>MOOE</option>
+                                    <option>CO</option>
+                                    <option>PS</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-sm">
+                                <label>Budget Allocation:</label>
+                                <input class="form-control" id="allocation" name="allocation" type="number">
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-sm">
+                                <label>Remarks:</label>
+                                <input class="form-control" id="remarks" name="remarks" type="text">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-success mt-3">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {{-- add item to project modal --}}
+
+    <div class="modal fade" id="projectModal" data-bs-backdrop="static" data-bs-keyboard="false"
+        aria-labelledby="projectModalLabel" aria-hidden="true" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <form action="{{ URL::to('/project/saveItemToProject') }}" method="post">
+                    @csrf
+                    <input id="year" name="year" type="hidden" value="{{ $selectedYear }}">
+                    <input id="item_to_project_gaa_id" name="item_to_project_gaa_id" type="hidden">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="projectModalLabel">Add item of Expenditure to Project</h5>
+                        <button class="btn-close" data-bs-dismiss="modal" type="button" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row form-group">
+                            <div class="col-sm">
+                                <label>Project Name:</label>
+                                <input class="form-control" id="item_of_expenditure" name="item_of_expenditure"
+                                    type="text" required>
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-sm">
+                                <label>Project Name:</label>
+                                <input class="form-control" id="project_name" name="project_name" type="text"
+                                    list="projectList" required>
+                                <datalist id="projectList">
+                                    @php
+                                        $projects = DB::table('projects')
+                                            ->where('approved_budget_id', function ($query) use ($selectedYear) {
+                                                $query
+                                                    ->select('id')
+                                                    ->from('approved_budget')
+                                                    ->where('year', $selectedYear);
+                                            })
+                                            ->get();
+                                    @endphp
+                                    @foreach ($projects as $project)
+                                        <option value="{{ $project->project_name }}"></option>
+                                    @endforeach
+                                </datalist>
                             </div>
                         </div>
                     </div>
@@ -165,12 +246,14 @@
                             <label>Realign funds to:</label>
                             <select class="form-select" id="realign_category_id" name="realign_category_id">
                                 <option value="0" selected>- Select Item -</option>
-                                @foreach ($dropdownData as $category)
-                                    @include('categories._category_option', [
-                                        'category' => $category,
-                                        'level' => 0,
-                                    ])
-                                @endforeach
+                                @if (!empty($dropdownData))
+                                    @foreach ($dropdownData as $category)
+                                        @include('gaa.dropdown', [
+                                            'category' => $category,
+                                            'level' => 0,
+                                        ])
+                                    @endforeach
+                                @endif
                             </select>
                         </div>
                     </div>
@@ -213,7 +296,7 @@
 @endsection
 
 @section('css')
-    @include('categories.css')
+    @include('gaa.css')
 @endsection
 
 @section('js')
@@ -222,5 +305,5 @@
             $('#projectModal').modal('toggle');
         }
     </script>
-    @include('categories.js')
+    @include('gaa.js')
 @endsection

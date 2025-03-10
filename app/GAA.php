@@ -75,4 +75,9 @@ class GAA extends Model
         ];
         return $default_categories;
     }
+
+    public function division()
+    {
+        return $this->hasOne(Division::class, 'id', 'division_id');
+    }
 }
