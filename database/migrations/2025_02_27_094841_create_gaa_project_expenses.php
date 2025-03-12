@@ -16,7 +16,7 @@ class CreateGaaProjectExpenses extends Migration
         Schema::create('gaa_project_expenses', function (Blueprint $table) {
             $table->id();
             $table->string('gaa_project_id');
-            $table->integer('type'); //IN or OUT
+            $table->string('type'); //IN or OUT
             $table->decimal('amount', 12, 2);
             $table->date('date');
             $table->string('remarks')->nullable();

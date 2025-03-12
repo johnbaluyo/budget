@@ -42,18 +42,21 @@
     @endif
     <td>
         <ul>
-            @foreach ($category['expenses'] as $expenses)
+            {{-- @foreach ($category['expenses'] as $expenses)
                 <li class="hover-text" data-id="{{ $gaa['id'] }}" data-activity="{{ $gaa['activity_date'] }}"
                     data-remarks="{{ $gaa['remarks'] }}">
                     {{ number_format($gaa['amount'], 2) }}</li>
-            @endforeach
+            @endforeach --}}
         </ul>
     </td>
     <td>{{ $category['remaining_balance'] == 0 ? null : number_format($category['remaining_balance'], 2) }}</td>
     <td class="d-flex justify-content-end">
-        @if (empty($category['children']) || $category['allocation'] > 0)
-            <button class="btn btn-sm btn-success"
-                onclick="showTracking(`{{ $category['id'] }}`,`{{ $category['item_of_expenditure'] }}`)">Tracking</button>&nbsp;|&nbsp;
+
+        @if (Request::is('project*'))
+            @if (empty($category['children']) || $category['allocation'] > 0)
+                <button class="btn btn-sm btn-success"
+                    onclick="showTracking(`{{ $category['id'] }}`)">Tracking</button>&nbsp;|&nbsp;
+            @endif
         @endif
         <div class="btn-group" role="group">
             <button class="btn btn-sm btn-ssi" id="btnGroupDrop1" data-bs-toggle="dropdown">

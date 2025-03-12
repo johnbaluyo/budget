@@ -78,27 +78,12 @@
             }
         }
 
-        function showTracking(category_id, expense_name) {
-            $('#trackingModal').modal('toggle');
-            $('#realignCheckbox').prop('checked', false);
-            toggleRealignSection($(this).is(':checked'));
-            const today = new Date();
-            const formattedDate = today.toISOString().split('T')[0];
-
-            // Set the default value of the input
-            $('#activity_date').val(formattedDate);
-            $('#remarks').val('');
-            $('#tracking_category_id').val(category_id);
-            $('#expense_name').html(expense_name);
-            loadTracking(category_id);
-        }
-
-        function loadTracking(category_id) {
+        function showTracking(gaa_id) {
             var formData = new FormData();
-            formData.append('category_id', category_id);
-
+            formData.append('gaa_id', gaa_id);
+            formData.append('project_id', '{{ $project->id ?? 0 }}');
             $.ajax({
-                url: "{{ url('categories/loadTracking') }}",
+                url: "{{ URL::to('project/getExpenseId') }}",
                 method: 'POST',
                 data: formData,
                 dataType: 'json',
@@ -107,48 +92,40 @@
                 cache: false,
                 success: function(response) {
                     console.log(response); // Debugging output
+                    $('#trackingModal').modal('toggle');
+                    const today = new Date();
+                    const formattedDate = today.toISOString().split('T')[0];
+                    $('#activity_date').val(formattedDate);
+                    $('#gaa_project_id').val(response.id);
+                    $('#expense_name').html(response.gaa.item_of_expenditure);
+                    $('#remarks').val('');
+                    // Load tracking data
 
                     var tbody = $('#tracking_tbody');
                     tbody.empty(); // Clear existing rows
-                    $('#remarks').val(''); // Reset remarks input
-
-                    if (response.length === 0 || !response[0].budget_tracking) {
+                    if (!response.expenses || response.expenses.length === 0) {
                         tbody.append('<tr><td colspan="4" class="text-center">No records found</td></tr>');
                         return;
                     }
 
-                    let allocation = response[0].allocation || 0; // Ensure allocation is checked safely
-
-                    // Disable or enable the realign checkbox based on allocation
-                    if (allocation == 0) {
-                        $('#realignCheckbox').prop('disabled', true);
-                    } else {
-                        $('#realignCheckbox').prop('disabled', false);
-                    }
-
-                    response[0].budget_tracking.forEach(function(item) { // Corrected key: budget_tracking
+                    response.expenses.forEach(function(item) {
                         let bgColor = '';
-
-                        if (item.type === 'IN' && item.realignment_from_cat_id != 0) {
-                            bgColor = 'table-info';
-                        } else if (item.type === 'IN') {
+                        if (item.type === 'IN') {
                             bgColor = 'table-success';
-                        } else if (item.type === 'OUT' && item.realignment_from_cat_id != 0) {
-                            bgColor = 'table-warning';
                         } else if (item.type === 'OUT') {
                             bgColor = 'table-danger';
                         }
-
                         var row = `
-                    <tr class="${bgColor}">
-                        <td>${item.type ?? '-'}</td>
-                        <td>${item.amount ? parseFloat(item.amount).toLocaleString() : '-'}</td>
-                        <td>${item.activity_date ?? '-'}</td>
-                        <td>${item.remarks ?? '-'}</td>
-                    </tr>
-                `;
+                            <tr class="${bgColor}">
+                                <td>${item.type ?? '-'}</td>
+                                <td>${item.amount ? parseFloat(item.amount).toLocaleString() : '-'}</td>
+                                <td>${item.date ?? '-'}</td>
+                                <td>${item.remarks ?? '-'}</td>
+                            </tr>
+                        `;
                         tbody.append(row);
                     });
+
                 },
                 error: function(xhr, status, error) {
                     console.error('Error loading tracking data:', error);

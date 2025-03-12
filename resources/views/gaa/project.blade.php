@@ -43,7 +43,7 @@
                     <div class="tooltip"></div>
                 </div>
             </div>
-            <input id="project_id" name="project_id" type="hidden" value="{{ $projectId }}">
+            <input id="project_id" name="project_id" type="hidden" value="{{ $project->id }}">
             <div class="row form-group">
                 <div class="col-sm">
                     <table class="table table-bordered" id="budgetTable">
@@ -127,6 +127,89 @@
                         <button class="btn btn-success mt-3">Save</button>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="trackingModal" data-bs-backdrop="static" data-bs-keyboard="false"
+        aria-labelledby="trackingModalLabel" aria-hidden="true" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="trackingModalLabel"><span id="expense_name"></span></h5>
+                    <button class="btn-close" data-bs-dismiss="modal" type="button" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row form-group">
+                        <input id="gaa_project_id" name="gaa_project_id" type="hidden">
+                        <div class="col-sm-7">
+                            <label>Amount</label>
+                            <input class="form-control" id="amount" name="amount" type="number" required>
+                        </div>
+                        <div class="col-sm">
+                            <label>Activity Date</label>
+                            <input class="form-control" id="activity_date" name="activity_date" type="date" required>
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-sm">
+                            <label>Remarks</label>
+                            <input class="form-control" id="remarks" name="remarks" type="text">
+                            {{-- <div class="form-check mt-2">
+                                <input class="form-check-input" id="realignCheckbox" type="checkbox">
+                                <label class="form-check-label" for="realignCheckbox">Realign Funds</label>
+                            </div> --}}
+                        </div>
+                    </div>
+                    {{-- <div class="row form-group" id="realignSection" style="display: none;">
+                        <div class="col-sm">
+                            <label>Realign funds to:</label>
+                            <select class="form-select" id="realign_category_id" name="realign_category_id">
+                                <option value="0" selected>- Select Item -</option>
+                                @if (!empty($dropdownData))
+                                    @foreach ($dropdownData as $category)
+                                        @include('gaa.dropdown', [
+                                            'category' => $category,
+                                            'level' => 0,
+                                        ])
+                                    @endforeach
+                                @endif
+                            </select>
+                        </div>
+                    </div> --}}
+                    <div class="row form-group" id="realignButton" style="display: none;">
+                        <div class="col-sm">
+                            <button class="btn btn-ssi btn-lg" id="btn_realign" onclick="updateTracking('OUT')"><span
+                                    class="fa fa-exchange-alt"></span> Realign Fund
+                                (OUT)</button>
+                        </div>
+                    </div>
+                    <div class="row form-group" id="inOutButtons">
+                        <div class="col-sm">
+                            <button class="btn btn-success btn-block btn-lg" id="btn_in"
+                                onclick="updateTracking('IN')"><span class="fa fa-plus"></span> IN</button>
+                        </div>
+                        <div class="col-sm">
+                            <button class="btn btn-danger btn-block btn-lg" id="btn_out"
+                                onclick="updateTracking('OUT')"><span class="fa fa-minus"></span> OUT</button>
+                        </div>
+                    </div>
+                    <div class="row form-group border-top">
+                        <div class="col-sm"><br>
+                            <table class="table table-bordered">
+                                <thead>
+                                    <th>Type</th>
+                                    <th>Amount</th>
+                                    <th>Activity Date</th>
+                                    <th>Remarks</th>
+                                    {{-- <th></th> --}}
+                                </thead>
+                                <tbody id="tracking_tbody">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
