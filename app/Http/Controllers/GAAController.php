@@ -6,6 +6,7 @@ use App\ApprovedBudget;
 use App\Division;
 use App\GAA;
 use App\GAAProject;
+use App\GAAProjectExpenses;
 use App\Project;
 use Illuminate\Http\Request;
 
@@ -282,6 +283,26 @@ class GAAController extends Controller
             return response()->json($gaa_project_expenses);
         } catch (\Exception $e) {
             return response()->json($e->getMessage());
+        }
+    }
+
+    public function updateTracking(Request $request)
+    {
+        try {
+            $data = GAAProjectExpenses::create([
+                'gaa_project_id' => $request->gaa_project_id,
+                'type' => $request->type,
+                'amount' => $request->amount,
+                'remarks' => $request->remarks,
+                'date' => $request->date,
+                'division_id' => $request->division_id,
+                'realign_from' => $request->has('realign_from') ? $request->realign_from : null,
+                'realign_to' => $request->has('realign_to') ? $request->realign_to : null,
+            ]);
+            $gaa_id = GAAProject::find($request->gaa_project_id);
+            return response()->json(array('message' => 'success', 'gaa_id' => $gaa_id->gaa_id));
+        } catch (\Exception $e) {
+            return response()->json(array('message' => $e->getMessage()));
         }
     }
 }

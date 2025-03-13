@@ -78,7 +78,7 @@
             }
         }
 
-        function showTracking(gaa_id) {
+        function loadTracking(gaa_id) {
             var formData = new FormData();
             formData.append('gaa_id', gaa_id);
             formData.append('project_id', '{{ $project->id ?? 0 }}');
@@ -91,30 +91,18 @@
                 processData: false,
                 cache: false,
                 success: function(response) {
-                    console.log(response); // Debugging output
-                    $('#trackingModal').modal('toggle');
-                    const today = new Date();
-                    const formattedDate = today.toISOString().split('T')[0];
-                    $('#activity_date').val(formattedDate);
                     $('#gaa_project_id').val(response.id);
                     $('#expense_name').html(response.gaa.item_of_expenditure);
-                    $('#remarks').val('');
-                    // Load tracking data
-
                     var tbody = $('#tracking_tbody');
-                    tbody.empty(); // Clear existing rows
+                    tbody.empty();
                     if (!response.expenses || response.expenses.length === 0) {
                         tbody.append('<tr><td colspan="4" class="text-center">No records found</td></tr>');
                         return;
                     }
 
                     response.expenses.forEach(function(item) {
-                        let bgColor = '';
-                        if (item.type === 'IN') {
-                            bgColor = 'table-success';
-                        } else if (item.type === 'OUT') {
-                            bgColor = 'table-danger';
-                        }
+                        let bgColor = item.type === 'IN' ? 'table-success' : item.type === 'OUT' ?
+                            'table-danger' : '';
                         var row = `
                             <tr class="${bgColor}">
                                 <td>${item.type ?? '-'}</td>
@@ -133,61 +121,73 @@
             });
         }
 
+        function showTracking(gaa_id) {
+            $('#trackingModal').modal('toggle');
+            const today = new Date();
+            const formattedDate = today.toISOString().split('T')[0];
+            $('#activity_date').val(formattedDate);
+            $('#remarks').val('');
+            loadTracking(gaa_id);
+
+        }
+
         function updateTracking(type) {
-            const trackingCategoryId = $('#tracking_category_id').val();
+            const gaaProjectId = $('#gaa_project_id').val();
             const amount = $('#amount').val();
             const activityDate = $('#activity_date').val();
             const remarks = $('#remarks').val();
-            const realignCategoryId = $('#realign_category_id').val();
 
             // Validation check
             if (!amount || amount <= 0) {
-                alert('Please enter a valid amount.');
+                Swal.fire(
+                    "Please enter a valid amount.",
+                    "Required field(s) missing",
+                    "warning"
+                )
                 return;
             }
 
             if (!activityDate) {
-                alert('Please select an activity date.');
+                Swal.fire(
+                    "Activity date is required.",
+                    "Required field(s) missing",
+                    "warning"
+                )
                 return;
             }
 
             const data = {
-                category_id: trackingCategoryId,
+                gaa_project_id: gaaProjectId,
                 type: type,
                 amount: amount,
-                activity_date: activityDate,
+                date: activityDate,
                 remarks: remarks
             };
 
-            if (type === 'OUT' && $('#realignCheckbox').is(':checked')) {
-                if (!realignCategoryId) {
-                    alert('Please select a category to realign funds.');
-                    return;
-                }
-                data.realignment_from_cat_id = realignCategoryId;
-            }
-
             // Send the data to the server using AJAX
             $.ajax({
-                url: "{{ URL::to('/categories/updateTracking') }}", // Adjust this URL to match your route
+                url: "{{ URL::to('/project/updateTracking') }}", // Adjust this URL to match your route
                 type: 'POST',
                 data: data,
                 success: function(response) {
                     if (response.message === 'success') {
-                        if ($('#realignCheckbox').is(':checked')) {
-                            location.reload();
-                        } else {
-                            loadTracking(trackingCategoryId);
-                            $('#amount').val('');
-                            $('#remarks').val('');
-                            $('#realign_category_id').val('');
-                        }
+                        loadTracking(response.gaa_id);
+                        $('#amount').val('');
+                        $('#remarks').val('');
                     } else {
-                        alert(response.message);
+                        Swal.fire(
+                            response.message,
+                            "DB Error",
+                            "danger"
+                        )
                     }
                 },
                 error: function(xhr) {
-                    alert('An error occurred while updating tracking. Please try again.');
+                    Swal.fire(
+                        'An error occurred while updating tracking. Please try again.',
+                        "Ajax error",
+                        "danger"
+                    )
                 }
             });
         }

@@ -55,3 +55,4 @@ Route::get('/project/{id}', 'GAAController@project')->name('project');
 Route::post('/project/saveItemToProject', 'GAAController@saveItemToProject');
 Route::post('/project/getExpenseId', 'GAAController@getExpenseId');
 Route::post('/project/loadTracking', 'GAAController@loadTracking');
+Route::post('/project/updateTracking', 'GAAController@updateTracking');
