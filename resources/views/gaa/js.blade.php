@@ -62,14 +62,14 @@
         function toggleRealignSection(isChecked) {
             if (isChecked) {
                 // Show realign section and button
-                $('#realignSection').show();
+                $('.realignSection').show();
                 $('#realignButton').show();
 
                 // Hide IN and OUT buttons
                 $('#inOutButtons').hide();
             } else {
                 // Hide realign section and button
-                $('#realignSection').hide();
+                $('.realignSection').hide();
                 $('#realignButton').hide();
 
                 // Show IN and OUT buttons
@@ -81,7 +81,7 @@
         function loadTracking(gaa_id) {
             var formData = new FormData();
             formData.append('gaa_id', gaa_id);
-            formData.append('project_id', '{{ $project->id ?? 0 }}');
+            formData.append('project_id', $('#project_id').val());
             $.ajax({
                 url: "{{ URL::to('project/getExpenseId') }}",
                 method: 'POST',
@@ -99,7 +99,6 @@
                         tbody.append('<tr><td colspan="4" class="text-center">No records found</td></tr>');
                         return;
                     }
-
                     response.expenses.forEach(function(item) {
                         let bgColor = item.type === 'IN' ? 'table-success' : item.type === 'OUT' ?
                             'table-danger' : '';
@@ -132,13 +131,18 @@
         }
 
         function updateTracking(type) {
-            const gaaProjectId = $('#gaa_project_id').val();
-            const amount = $('#amount').val();
-            const activityDate = $('#activity_date').val();
-            const remarks = $('#remarks').val();
+            const formData = new FormData();
+            formData.append('gaa_project_id', $('#gaa_project_id').val());
+            formData.append('type', type);
+            formData.append('amount', $('#amount').val());
+            formData.append('date', $('#activity_date').val());
+            formData.append('remarks', $('#remarks').val());
+            formData.append('realign_gaa_id', $('#realignCheckbox').is(':checked') ? $('#realign_gaa_id').val() : null);
+            formData.append('realign_project_id', $('#realignCheckbox').is(':checked') ? $('#realign_project_id').val() :
+                null);
 
             // Validation check
-            if (!amount || amount <= 0) {
+            if (!formData.get('amount') || formData.get('amount') <= 0) {
                 Swal.fire(
                     "Please enter a valid amount.",
                     "Required field(s) missing",
@@ -147,7 +151,7 @@
                 return;
             }
 
-            if (!activityDate) {
+            if (!formData.get('date')) {
                 Swal.fire(
                     "Activity date is required.",
                     "Required field(s) missing",
@@ -156,20 +160,26 @@
                 return;
             }
 
-            const data = {
-                gaa_project_id: gaaProjectId,
-                type: type,
-                amount: amount,
-                date: activityDate,
-                remarks: remarks
-            };
+            if ($('#realignCheckbox').is(':checked') && (!formData.get('realign_gaa_id') || !formData.get(
+                    'realign_project_id'))) {
+                Swal.fire(
+                    "Please select both Project and Project Item for realignment.",
+                    "Required field(s) missing",
+                    "warning"
+                )
+                return;
+            }
 
             // Send the data to the server using AJAX
             $.ajax({
                 url: "{{ URL::to('/project/updateTracking') }}", // Adjust this URL to match your route
                 type: 'POST',
-                data: data,
+                data: formData,
+                processData: false,
+                contentType: false,
                 success: function(response) {
+                    console.log(response);
+                    return;
                     if (response.message === 'success') {
                         loadTracking(response.gaa_id);
                         $('#amount').val('');
@@ -385,5 +395,61 @@
             $('#object_type').val(object_type);
             $('#allocation').val('');
             $('#remarks').val('');
+        }
+
+        function showRealign() {
+
+        }
+
+        function loadGaaFromProject() {
+            var formData = new FormData();
+            formData.append('project_id', $('#realign_project_id').val());
+            $.ajax({
+                url: "{{ URL::to('project/getGaaFromProject') }}",
+                method: 'post',
+                data: formData,
+                dataType: 'json',
+                success: function(response) {
+                    if (response.message === 'success') {
+                        $('#realign_gaa_id').empty();
+                        $('#realign_gaa_id').append('<option value="">- Select Item -</option>');
+                        response.items.forEach(function(item) {
+                            appendDropdownOption(item, 0);
+                        });
+                    } else {
+                        Swal.fire(
+                            response.message,
+                            "System Message",
+                            "danger"
+                        )
+                    }
+                },
+                cache: false,
+                contentType: false,
+                processData: false
+            });
+        }
+
+        function appendDropdownOption(category, level) {
+            var option = `<option value="${category.id}"`;
+            if (level === 0) {
+                option += ` style="background-color: #d3d3d3; font-weight: bold;"`;
+            } else if (level === 1) {
+                option += ` style="background-color: #f0f0f0; font-weight: 600;"`;
+            } else {
+                option += ` style="background-color: transparent;"`;
+            }
+            option += `>${'&nbsp;&nbsp;&nbsp;'.repeat(level)}`;
+            if (level > 0) {
+                option += `- `;
+            }
+            option += `${category.item_of_expenditure}</option>`;
+            $('#realign_gaa_id').append(option);
+
+            if (category.children && category.children.length > 0) {
+                category.children.forEach(function(child) {
+                    appendDropdownOption(child, level + 1);
+                });
+            }
         }
     </script>
