@@ -25,7 +25,7 @@ class GAAController extends Controller
         ])
             ->where('year', $selectedYear)
             ->first();
-
+        $approved_budget_id = $approved_budget->id;
         $parents = collect();
         if ($approved_budget) {
             foreach ($approved_budget['gaa'] as $gaa_item) {
@@ -49,7 +49,7 @@ class GAAController extends Controller
         } else {
             return redirect('/approvedbudget');
         }
-        return view('gaa.index', compact('categoryTree', 'selectedYear', 'divisions'));
+        return view('gaa.index', compact('categoryTree', 'selectedYear', 'divisions', 'approved_budget_id'));
     }
 
 
@@ -116,6 +116,7 @@ class GAAController extends Controller
                 'gaa.gaaProjects.expenses'
             ])
             ->first();
+        $approved_budget_id = $approved_budget->id;
         // return response()->json($approved_budget);
 
         $project = Project::find($projectId);
@@ -152,7 +153,7 @@ class GAAController extends Controller
 
         $categoryTree = $this->buildTree($sortedgaa);
         // return response()->json($categoryTree);
-        return view('gaa.project', compact('categoryTree', 'selectedYear', 'divisions', 'project'));
+        return view('gaa.project', compact('categoryTree', 'selectedYear', 'divisions', 'project', 'approved_budget_id'));
     }
 
     public function dropdownData($selectedYear)
@@ -304,5 +305,53 @@ class GAAController extends Controller
         } catch (\Exception $e) {
             return response()->json(array('message' => $e->getMessage()));
         }
+    }
+
+    public function getGaaFromProject(Request $request)
+    {
+        $project_id = $request->project_id;
+        $approved_budget = ApprovedBudget::whereHas('gaa.gaaProjects', function ($query) use ($project_id) {
+            $query->where('project_id', $project_id);
+        })
+            ->with([
+                'gaa' => function ($query) use ($project_id) {
+                    $query->whereHas('gaaProjects', function ($query) use ($project_id) {
+                        $query->where('project_id', $project_id);
+                    });
+                },
+                'gaa.gaaProjects.expenses'
+            ])
+            ->first();
+
+        if (!$approved_budget) {
+            return response()->json(array('message' => 'no item assigned to project'));
+        }
+        $parents = collect();
+        foreach ($approved_budget['gaa'] as $gaa_item) {
+            $parent = $gaa_item->parentCategory;
+            while ($parent) {
+                if (!$parents->contains('id', $parent->id)) {
+                    $parents->push($parent);
+                }
+                $parent = $parent->parentCategory;
+            }
+        }
+
+        $filteredgaa = $approved_budget['gaa']->merge($parents)->unique('id');
+
+        // Make parent_id null if the parent_id is not existing in the collection
+        foreach ($filteredgaa as $gaa_item) {
+            if ($gaa_item->parent_id && !$filteredgaa->contains('id', $gaa_item->parent_id)) {
+                $gaa_item->parent_id = null;
+            }
+        }
+
+        $topLevelgaa = $filteredgaa->where('parent_id', null)
+            ->sortByDesc('object_type');
+        $sortedgaa = $topLevelgaa->merge(
+            $filteredgaa->where('parent_id', '!=', null)
+        );
+
+        return response()->json(array('message' => 'success', 'items' => $this->buildTree($sortedgaa)));
     }
 }

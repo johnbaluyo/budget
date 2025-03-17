@@ -5,7 +5,7 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    <h1 class="m-0">PROJECT NAME HERE</h1>
+                    <h1 class="m-0">{{ strtoupper($project->project_name) }}</h1>
                 </div><!-- /.col -->
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
@@ -131,6 +131,7 @@
         </div>
     </div>
 
+    {{-- tracking modal --}}
     <div class="modal fade" id="trackingModal" data-bs-backdrop="static" data-bs-keyboard="false"
         aria-labelledby="trackingModalLabel" aria-hidden="true" tabindex="-1">
         <div class="modal-dialog modal-lg">
@@ -155,28 +156,35 @@
                         <div class="col-sm">
                             <label>Remarks</label>
                             <input class="form-control" id="remarks" name="remarks" type="text">
-                            {{-- <div class="form-check mt-2">
+                            <div class="form-check mt-2">
                                 <input class="form-check-input" id="realignCheckbox" type="checkbox">
                                 <label class="form-check-label" for="realignCheckbox">Realign Funds</label>
-                            </div> --}}
+                            </div>
                         </div>
                     </div>
-                    {{-- <div class="row form-group" id="realignSection" style="display: none;">
+                    <hr>
+                    <div class="row form-group realignSection" style="display: none;">
                         <div class="col-sm">
-                            <label>Realign funds to:</label>
-                            <select class="form-select" id="realign_category_id" name="realign_category_id">
-                                <option value="0" selected>- Select Item -</option>
-                                @if (!empty($dropdownData))
-                                    @foreach ($dropdownData as $category)
-                                        @include('gaa.dropdown', [
-                                            'category' => $category,
-                                            'level' => 0,
-                                        ])
-                                    @endforeach
-                                @endif
+                            <label class="text-secondary"><small>--> realign funds to:</small></label><br>
+                            <label>Project:</label>
+                            <select class="form-select" id="realign_project_id" name="realign_project_id"
+                                onchange="loadGaaFromProject()">
+                                <option value="" selected>- Select Project -</option>
+                                @php $projects = App\Project::where('approved_budget_id', $approved_budget_id)->get(); @endphp
+                                @foreach ($projects as $project)
+                                    <option value="{{ $project->id }}">{{ $project->project_name }}</option>
+                                @endforeach
                             </select>
                         </div>
-                    </div> --}}
+                    </div>
+                    <div class="row form-group realignSection" style="display: none;">
+                        <div class="col-sm">
+                            <label>Project Item:</label>
+                            <select class="form-select" id="realign_gaa_id" name="realign_gaa_id">
+                                <option value="" selected>- Select Item -</option>
+                            </select>
+                        </div>
+                    </div>
                     <div class="row form-group" id="realignButton" style="display: none;">
                         <div class="col-sm">
                             <button class="btn btn-ssi btn-lg" id="btn_realign" onclick="updateTracking('OUT')"><span

@@ -59,8 +59,9 @@
             @endif
         @endif
         <div class="btn-group" role="group">
-            <button class="btn btn-sm btn-ssi" id="btnGroupDrop1" data-bs-toggle="dropdown">
-                Options <span class="fa fa-chevron-right"></span>
+            <button class="btn btn-sm btn-outline-secondary rounded-circle" id="btnGroupDrop1"
+                data-bs-toggle="dropdown">
+                &nbsp;<span class="fas fa-ellipsis-v"></span>&nbsp;
             </button>
             <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
                 @if (Request::is('gaa*'))
