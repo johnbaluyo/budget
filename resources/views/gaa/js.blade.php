@@ -99,20 +99,24 @@
                         tbody.append('<tr><td colspan="4" class="text-center">No records found</td></tr>');
                         return;
                     }
+
+                    console.log(response)
                     response.expenses.forEach(function(item) {
-                        let bgColor = item.type === 'IN' ? 'table-success' : item.type === 'OUT' ?
-                            'table-danger' : '';
+                        let bgColor = item.type === 'IN' ? 'table-success' : item.type === 'OUT' ? 'table-danger' : '';
                         var row = `
-                            <tr class="${bgColor}">
-                                <td>${item.type ?? '-'}</td>
-                                <td>${item.amount ? parseFloat(item.amount).toLocaleString() : '-'}</td>
-                                <td>${item.date ?? '-'}</td>
-                                <td>${item.remarks ?? '-'}</td>
-                            </tr>
-                        `;
+                        <tr class="${bgColor}">
+                            <td>${item.type ?? '-'}</td>
+                            <td>${item.amount ? parseFloat(item.amount).toLocaleString() : '-'}</td>
+                            <td>${item.date ?? '-'}</td>
+                            <td>
+                                ${item.realignFrom ?? ''}
+                                ${item.realignTo ?? ''}
+                                ${item.remarks ?? ''}
+                            </td>
+                        </tr>
+                    `;
                         tbody.append(row);
                     });
-
                 },
                 error: function(xhr, status, error) {
                     console.error('Error loading tracking data:', error);
@@ -138,8 +142,7 @@
             formData.append('date', $('#activity_date').val());
             formData.append('remarks', $('#remarks').val());
             formData.append('realign_gaa_id', $('#realignCheckbox').is(':checked') ? $('#realign_gaa_id').val() : null);
-            formData.append('realign_project_id', $('#realignCheckbox').is(':checked') ? $('#realign_project_id').val() :
-                null);
+            formData.append('realign_project_id', $('#realignCheckbox').is(':checked') ? $('#realign_project_id').val() : null);
 
             // Validation check
             if (!formData.get('amount') || formData.get('amount') <= 0) {
@@ -170,16 +173,13 @@
                 return;
             }
 
-            // Send the data to the server using AJAX
             $.ajax({
-                url: "{{ URL::to('/project/updateTracking') }}", // Adjust this URL to match your route
+                url: "{{ URL::to('/project/updateTracking') }}",
                 type: 'POST',
                 data: formData,
                 processData: false,
                 contentType: false,
                 success: function(response) {
-                    console.log(response);
-                    return;
                     if (response.message === 'success') {
                         loadTracking(response.gaa_id);
                         $('#amount').val('');
@@ -194,7 +194,7 @@
                 },
                 error: function(xhr) {
                     Swal.fire(
-                        'An error occurred while updating tracking. Please try again.',
+                        xhr.responseJSON.message,
                         "Ajax error",
                         "danger"
                     )
