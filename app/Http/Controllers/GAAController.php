@@ -277,11 +277,36 @@ class GAAController extends Controller
     public function getExpenseId(Request $request)
     {
         try {
-            $gaa_project_expenses = GAAProject::with(['gaa', 'expenses'])
+            $gaa_project_expenses = GAAProject::with([
+                'gaa',
+                'expenses',
+                'expenses.realignFrom',
+                'expenses.realignTo',
+                'expenses.realignFrom.gaa',
+                'expenses.realignTo.gaa',
+                'expenses.realignFrom.project',
+                'expenses.realignTo.project'
+            ])
                 ->where('project_id', $request->project_id)
                 ->where('gaa_id', $request->gaa_id)
                 ->first();
-            return response()->json($gaa_project_expenses);
+
+            $expenses = $gaa_project_expenses->expenses->map(function ($expense) {
+                return [
+                    'type' => $expense->type,
+                    'amount' => $expense->amount,
+                    'date' => $expense->date,
+                    'remarks' => $expense->remarks,
+                    'realignFrom' => $expense->realignFrom ? 'realigned from: <b>(' . $expense->realignFrom->project->project_name . ') ' . $expense->realignFrom->gaa->item_of_expenditure . '</b><br>' : null,
+                    'realignTo' => $expense->realignTo ? 'realigned to: <b>(' . $expense->realignTo->project->project_name . ') ' . $expense->realignTo->gaa->item_of_expenditure . '</b><br>' : null,
+                ];
+            });
+
+            return response()->json([
+                'id' => $gaa_project_expenses->id,
+                'gaa' => $gaa_project_expenses->gaa,
+                'expenses' => $expenses
+            ]);
         } catch (\Exception $e) {
             return response()->json($e->getMessage());
         }
@@ -290,20 +315,42 @@ class GAAController extends Controller
     public function updateTracking(Request $request)
     {
         try {
-            $data = GAAProjectExpenses::create([
+            $realign_to_gaa_project = null;
+
+            if ($request->realign_project_id) {
+                $realign_to_gaa_project = GAAProject::where('project_id', $request->realign_project_id)
+                    ->where('gaa_id', $request->realign_gaa_id)
+                    ->pluck('id')
+                    ->first();
+
+                if ($realign_to_gaa_project) {
+                    GAAProjectExpenses::create([
+                        'gaa_project_id' => $realign_to_gaa_project,
+                        'type' => "IN",
+                        'amount' => $request->amount,
+                        'remarks' => $request->remarks,
+                        'date' => $request->date,
+                        'division_id' => $request->division_id,
+                        'realign_from' => $request->gaa_project_id,
+                    ]);
+                }
+            }
+
+            GAAProjectExpenses::create([
                 'gaa_project_id' => $request->gaa_project_id,
                 'type' => $request->type,
                 'amount' => $request->amount,
                 'remarks' => $request->remarks,
                 'date' => $request->date,
                 'division_id' => $request->division_id,
-                'realign_from' => $request->has('realign_from') ? $request->realign_from : null,
-                'realign_to' => $request->has('realign_to') ? $request->realign_to : null,
+                'realign_to' => $realign_to_gaa_project,
             ]);
-            $gaa_id = GAAProject::find($request->gaa_project_id);
-            return response()->json(array('message' => 'success', 'gaa_id' => $gaa_id->gaa_id));
+
+            $gaa_project = GAAProject::find($request->gaa_project_id);
+
+            return response()->json(['message' => 'success', 'gaa_id' => $gaa_project->gaa_id]);
         } catch (\Exception $e) {
-            return response()->json(array('message' => $e->getMessage()));
+            return response()->json(['message' => $e->getMessage()], 500);
         }
     }
 

@@ -28,4 +28,14 @@ class GAAProjectExpenses extends Model
     {
         return $this->hasOne(Division::class, 'id', 'division_id');
     }
+
+    public function realignFrom()
+    {
+        return $this->hasOne(GAAProject::class, 'id', 'realign_from');
+    }
+
+    public function realignTo()
+    {
+        return $this->hasOne(GAAProject::class, 'id', 'realign_to');
+    }
 }
