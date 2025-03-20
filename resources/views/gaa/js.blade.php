@@ -343,9 +343,11 @@
             printWindow.print();
         }
 
-        function addItemToProject(gaa_id, item_of_expenditure) {
+        function addItemToProject(gaa_id, item_of_expenditure, available_fund) {
             $('#projectModal').modal('toggle');
             $('#item_to_project_gaa_id').val(gaa_id);
+            $('#available_fund').val(available_fund);
+            $('#budget').val('');
             $('#projectModalLabel').html(item_of_expenditure);
         }
 

@@ -49,6 +49,7 @@ class GAAController extends Controller
         } else {
             return redirect('/approvedbudget');
         }
+        // return response()->json($categoryTree);
         return view('gaa.index', compact('categoryTree', 'selectedYear', 'divisions', 'approved_budget_id'));
     }
 
@@ -63,20 +64,9 @@ class GAAController extends Controller
                 $expenses = [];
                 foreach ($category->gaaProjects as $project) {
                     foreach ($project->expenses as $expense) {
-                        $expenses[] = [
-                            'project' => $project->project->project_name,
-                            'type' => $expense->type,
-                            'amount' => $expense->amount,
-                            'remarks' => $expense->remarks,
-                            'date' => $expense->date,
-                            'division' => $expense->division->division_acronym ?? null,
-                            'realign_from' => $expense->realign_from,
-                            'realign_to' => $expense->realign_to,
-                        ];
+                        $expenses[] = $expense;
                     }
                 }
-                $realign_in = []; //get from expenses array
-                $realign_out = []; // get from expenses array
                 $remaining_balance = 0; //get from expenses array, with type is OUT and IN
 
                 $tree[] = [
@@ -86,10 +76,8 @@ class GAAController extends Controller
                     'object_type' => $category->object_type,
                     'fund_cluster' => $category->fund_cluster,
                     'division' => $category->division->division_acronym ?? null,
-                    'allocation' => $category->allocation,
+                    'allocation' => $category->budget_allocation,
                     'expenses' => $expenses,
-                    'realign_in' => $realign_in,
-                    'realign_out' => $realign_out,
                     'remaining_balance' => $remaining_balance, // Include remaining_balance only if no children
                     'children' => $children,
                 ];
@@ -100,7 +88,6 @@ class GAAController extends Controller
 
     public function project($projectId, Request $request)
     {
-
         $currentYear = date('Y');
         $selectedYear = $request->get('year', $currentYear);
         $divisions = Division::all();
@@ -117,7 +104,6 @@ class GAAController extends Controller
             ])
             ->first();
         $approved_budget_id = $approved_budget->id;
-        // return response()->json($approved_budget);
 
         $project = Project::find($projectId);
         if (!$approved_budget) {
@@ -209,6 +195,7 @@ class GAAController extends Controller
         $gaa_project = new GAAProject();
         $gaa_project->project_id = $project->id;
         $gaa_project->gaa_id = $request->item_to_project_gaa_id;
+        $gaa_project->budget = $request->budget;
         $gaa_project->save();
         return redirect()->back()
             ->with('message', 'Item successfully assigned to project: ' . $project->project_name)
