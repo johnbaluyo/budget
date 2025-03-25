@@ -55,7 +55,7 @@
                                     <th>Realign IN</th>
                                     <th>Realign OUT</th>
                                 @endif
-                                <th>Expenses </th>
+                                <th>Budget Tracking </th>
                                 <th>Balance</th>
                                 <th></th>
                             </tr>

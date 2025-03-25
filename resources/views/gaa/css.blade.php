@@ -1,7 +1,7 @@
     <style>
         .hover-text {
             cursor: pointer;
-            color: blue;
+            color: rgb(6, 6, 182);
             position: relative;
         }
 
@@ -38,5 +38,15 @@
             /* Match tooltip background */
             box-shadow: -1px 1px 3px rgba(0, 0, 0, 0.1);
             /* Optional: Add a subtle shadow to the pointer */
+        }
+
+        /* Styling for (OUT) text */
+        .hover-text:contains("(OUT)") {
+            color: red;
+        }
+
+        /* Styling for (IN) text */
+        .hover-text:contains("(IN)") {
+            color: rgb(6, 109, 6);
         }
     </style>

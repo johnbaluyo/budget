@@ -70,15 +70,15 @@ class GAAController extends Controller
                 $remaining_balance = 0; //get from expenses array, with type is OUT and IN
 
                 $tree[] = [
-                    'id' => $category->id,
+                    'gaa_id' => $category->id,
                     'item_of_expenditure' => $category->item_of_expenditure,
                     'level' => $level,
                     'object_type' => $category->object_type,
                     'fund_cluster' => $category->fund_cluster,
                     'division' => $category->division->division_acronym ?? null,
                     'allocation' => $category->budget_allocation,
-                    'expenses' => $expenses,
                     'remaining_balance' => $remaining_balance, // Include remaining_balance only if no children
+                    'expenses' => $expenses,
                     'children' => $children,
                 ];
             }
@@ -304,7 +304,7 @@ class GAAController extends Controller
         try {
             $realign_to_gaa_project = null;
 
-            if ($request->realign_project_id) {
+            if ($request->realign_project_id && $request->realign_gaa_id) {
                 $realign_to_gaa_project = GAAProject::where('project_id', $request->realign_project_id)
                     ->where('gaa_id', $request->realign_gaa_id)
                     ->pluck('id')
