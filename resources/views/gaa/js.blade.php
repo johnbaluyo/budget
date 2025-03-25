@@ -18,6 +18,7 @@
                     const $this = $(this);
                     const remarks = $this.data("remarks");
                     const activityDate = $this.data("activity");
+                    const type = $this.data("type");
 
                     let formattedDate = "Invalid date";
                     if (activityDate) {
@@ -38,7 +39,7 @@
                         .fadeIn();
 
                     tooltip.html(
-                        `<b>${formattedDate}</b><br> - ${remarks || "No details available."}`
+                        `<b>${formattedDate} (<span style="color: ${type === 'OUT' ? 'red' : type === 'IN' ? 'green' : 'black'};">${type}</span>)</b><br> - ${remarks || " -- "}`
                     );
                 },
                 function() {
@@ -100,7 +101,6 @@
                         return;
                     }
 
-                    console.log(response)
                     response.expenses.forEach(function(item) {
                         let bgColor = item.type === 'IN' ? 'table-success' : item.type === 'OUT' ? 'table-danger' : '';
                         var row = `
@@ -343,9 +343,11 @@
             printWindow.print();
         }
 
-        function addItemToProject(gaa_id, item_of_expenditure) {
+        function addItemToProject(gaa_id, item_of_expenditure, available_fund) {
             $('#projectModal').modal('toggle');
             $('#item_to_project_gaa_id').val(gaa_id);
+            $('#available_fund').val(available_fund);
+            $('#budget').val('');
             $('#projectModalLabel').html(item_of_expenditure);
         }
 
@@ -431,7 +433,7 @@
         }
 
         function appendDropdownOption(category, level) {
-            var option = `<option value="${category.id}"`;
+            var option = `<option value="${category.gaa_id}"`;
             if (level === 0) {
                 option += ` style="background-color: #d3d3d3; font-weight: bold;"`;
             } else if (level === 1) {

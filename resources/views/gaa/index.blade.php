@@ -55,7 +55,7 @@
                                     <th>Realign IN</th>
                                     <th>Realign OUT</th>
                                 @endif
-                                <th>Expenses </th>
+                                <th>Budget Tracking </th>
                                 <th>Balance</th>
                                 <th></th>
                             </tr>
@@ -91,8 +91,8 @@
 
     {{-- add item to gaa --}}
 
-    <div class="modal fade" id="GAAitemModal" data-bs-backdrop="static" data-bs-keyboard="false"
-        aria-labelledby="GAAitemLabel" aria-hidden="true" tabindex="-1">
+    <div class="modal fade" id="GAAitemModal" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="GAAitemLabel" aria-hidden="true"
+        tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <form action="{{ URL::to('/gaa/store') }}" method="post">
@@ -108,8 +108,7 @@
                         <div class="row form-group">
                             <div class="col-sm">
                                 <label>Item of Expenditure:</label>
-                                <input class="form-control" id="item_of_expenditure" name="item_of_expenditure"
-                                    type="text" required>
+                                <input class="form-control" id="item_of_expenditure" name="item_of_expenditure" type="text" required>
                             </div>
                         </div>
                         <div class="row form-group">
@@ -125,8 +124,8 @@
                             </div>
                             <div class="col-sm">
                                 <label>Fund Cluster</label>
-                                <input class="form-control" name="fund_cluster" type="text" value="RAF-01"
-                                    style="flex-grow: 0.5;" placeholder="Fund Cluster" readonly>
+                                <input class="form-control" name="fund_cluster" type="text" value="RAF-01" style="flex-grow: 0.5;"
+                                    placeholder="Fund Cluster" readonly>
                             </div>
                             <div class="col-sm">
                                 <label>Object Type</label>
@@ -160,8 +159,8 @@
 
     {{-- add item to project modal --}}
 
-    <div class="modal fade" id="projectModal" data-bs-backdrop="static" data-bs-keyboard="false"
-        aria-labelledby="projectModalLabel" aria-hidden="true" tabindex="-1">
+    <div class="modal fade" id="projectModal" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="projectModalLabel"
+        aria-hidden="true" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <form action="{{ URL::to('/project/saveItemToProject') }}" method="post">
@@ -175,17 +174,19 @@
                     <div class="modal-body">
                         <div class="row form-group">
                             <div class="col-sm">
+                                <label>Available Fund:</label>
+                                <input class="form-control" id="available_fund" name="available_fund" type="text" readonly>
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-sm">
                                 <label>Project Name:</label>
-                                <input class="form-control" id="project_name" name="project_name" type="text"
-                                    list="projectList" required>
+                                <input class="form-control" id="project_name" name="project_name" type="text" list="projectList" required>
                                 <datalist id="projectList">
                                     @php
                                         $projects = DB::table('projects')
                                             ->where('approved_budget_id', function ($query) use ($selectedYear) {
-                                                $query
-                                                    ->select('id')
-                                                    ->from('approved_budget')
-                                                    ->where('year', $selectedYear);
+                                                $query->select('id')->from('approved_budget')->where('year', $selectedYear);
                                             })
                                             ->get();
                                     @endphp
@@ -193,6 +194,12 @@
                                         <option value="{{ $project->project_name }}"></option>
                                     @endforeach
                                 </datalist>
+                            </div>
+                        </div>
+                        <div class="row form-group">
+                            <div class="col-sm-6">
+                                <label>Budget allocation for this project item:</label>
+                                <input class="form-control" id="budget" name="budget" type="number" required>
                             </div>
                         </div>
                     </div>
