@@ -57,7 +57,7 @@
                     @if ($expense['gaa_project_id'] == $project->id)
                         @if (!is_null($expense['realign_from']))
                             <li class="hover-text" data-id="{{ $expense['id'] }}" data-activity="{{ $expense['date'] }}"
-                                data-remarks="{{ $expense['remarks'] }}">
+                                data-remarks="{{ $expense['remarks'] }}" data-type="{{ $expense['type'] }}">
                                 {{ number_format($expense['amount'], 2) }}
                                 @php $row_total += $expense['amount']; @endphp
                             </li>
@@ -74,7 +74,7 @@
                     @if ($expense['gaa_project_id'] == $project->id)
                         @if (!is_null($expense['realign_to']))
                             <li class="hover-text" data-id="{{ $expense['id'] }}" data-activity="{{ $expense['date'] }}"
-                                data-remarks="{{ $expense['remarks'] }}">
+                                data-remarks="{{ $expense['remarks'] }}" data-type="{{ $expense['type'] }}">
                                 {{ number_format($expense['amount'], 2) }}
                                 @php $row_total -= $expense['amount']; @endphp
                             </li>
@@ -91,7 +91,7 @@
                     @if ($expense['gaa_project_id'] == $project->id)
                         @if (is_null($expense['realign_from']) && is_null($expense['realign_to']))
                             <li class="hover-text" data-id="{{ $expense['id'] }}" data-activity="{{ $expense['date'] }}"
-                                data-remarks="{{ $expense['remarks'] }}">
+                                data-remarks="{{ $expense['remarks'] }}" data-type="{{ $expense['type'] }}">
                                 {{ $expense['type'] == 'IN' ? '+' : '-' }} {{ number_format($expense['amount'], 2) }}
                                 @php $row_total -= $expense['amount']; @endphp
                             </li>
