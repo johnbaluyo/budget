@@ -57,3 +57,4 @@ Route::post('/project/getExpenseId', 'GAAController@getExpenseId');
 Route::post('/project/loadTracking', 'GAAController@loadTracking');
 Route::post('/project/updateTracking', 'GAAController@updateTracking');
 Route::post('/project/getGaaFromProject', 'GAAController@getGaaFromProject');
+Route::post('/project/moveToOtherProject', 'GAAController@moveToOtherProject');

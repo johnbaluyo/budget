@@ -19,13 +19,19 @@ class GAAController extends Controller
         $selectedYear = $request->get('year', $currentYear);
         $divisions = Division::all();
         $approved_budget = ApprovedBudget::with([
-            'gaa',
-            'gaa.gaaProjects',
             'gaa.gaaProjects.expenses'
-        ])
-            ->where('year', $selectedYear)
-            ->first();
-        $approved_budget_id = $approved_budget->id;
+        ])->where('year', $selectedYear)->first();
+
+        if ($approved_budget) {
+            $expenses = $approved_budget->gaa->flatMap(fn($gaa) => $gaa->gaaProjects->flatMap(fn($project) => $project->expenses));
+            $totals = $expenses->filter(fn($expense) => $expense->realign_from === null && $expense->realign_to === null)
+                ->groupBy('type')
+                ->map(fn($group) => $group->sum('amount'));
+
+            $approved_budget->total_in = $totals['IN'] ?? 0;
+            $approved_budget->total_out = $totals['OUT'] ?? 0;
+            $approved_budget->remaining_balance = $approved_budget->grand_total_amount + $approved_budget->total_in - $approved_budget->total_out;
+        }
         $parents = collect();
         if ($approved_budget) {
             foreach ($approved_budget['gaa'] as $gaa_item) {
@@ -50,7 +56,7 @@ class GAAController extends Controller
             return redirect('/approvedbudget');
         }
         // return response()->json($categoryTree);
-        return view('gaa.index', compact('categoryTree', 'selectedYear', 'divisions', 'approved_budget_id'));
+        return view('gaa.index', compact('categoryTree', 'selectedYear', 'divisions', 'approved_budget'));
     }
 
 
@@ -103,7 +109,6 @@ class GAAController extends Controller
                 'gaa.gaaProjects.expenses'
             ])
             ->first();
-        $approved_budget_id = $approved_budget->id;
 
         $project = Project::find($projectId);
         if (!$approved_budget) {
@@ -139,7 +144,7 @@ class GAAController extends Controller
 
         $categoryTree = $this->buildTree($sortedgaa);
         // return response()->json($categoryTree);
-        return view('gaa.project', compact('categoryTree', 'selectedYear', 'divisions', 'project', 'approved_budget_id'));
+        return view('gaa.project', compact('categoryTree', 'selectedYear', 'divisions', 'project', 'approved_budget'));
     }
 
     public function dropdownData($selectedYear)
@@ -243,6 +248,17 @@ class GAAController extends Controller
             $model->parent_id = $request->parent_id;
             $model->approved_budget_id = $approved_budget_id;
             $model->save();
+
+            if ($request->project != 0) {
+                $gaa_project = GAAProject::where('project_id', $request->project)->where('gaa_id', $model->id)->first();
+                if (!$gaa_project) {
+                    $gaa_project = new GAAProject();
+                    $gaa_project->project_id = $request->project;
+                    $gaa_project->gaa_id = $model->id;
+                    $gaa_project->budget = $request->allocation;
+                    $gaa_project->save();
+                }
+            }
             return redirect()->back()->with([
                 'message' => 'Record saved successfully.',
                 'color' => 'success'
@@ -387,5 +403,20 @@ class GAAController extends Controller
         );
 
         return response()->json(array('message' => 'success', 'items' => $this->buildTree($sortedgaa)));
+    }
+
+    public function moveToOtherProject(Request $request)
+    {
+        try {
+            $gaa_project = GAAProject::where('gaa_id', $request->gaa_project_id)->where('project_id', $request->project_id)->first();
+            if (!$gaa_project) {
+                return response()->json(['message' => 'GAA Project not found'], 404);
+            }
+            $gaa_project->project_id = $request->project_id;
+            $gaa_project->save();
+            return response()->json(['message' => 'success']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
     }
 }

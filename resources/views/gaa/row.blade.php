@@ -10,7 +10,7 @@
         @elseif ($level >= 3)
             -
         @endif
-        &nbsp;{{ $category['item_of_expenditure'] }}
+        &nbsp;{{ $category['item_of_expenditure'] }} <br>
         @php $row_total = 0; @endphp
 
     </td>
@@ -119,19 +119,26 @@
                     <li>
                         <a class="dropdown-item bg-success"
                             onclick="addItemToProject(`{{ $category['gaa_id'] }}`,`{{ $category['item_of_expenditure'] }}`,`{{ $category['allocation'] }}`)">
-                            Add item to project
+                            Add Item to Project
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" onclick="editGaaItem({{ $category['gaa_id'] }})">
+                            Edit Fund / Details
+                        </a>
+                    </li>
+                @else
+                    <li>
+                        <a class="dropdown-item" onclick="moveToOtherProject(`{{ $category['gaa_id'] }}`,`{{ $project->id }}`)">
+                            Move Item To Other Project
+                            {{-- to do --}}
                         </a>
                     </li>
                 @endif
                 <li>
-                    <a class="dropdown-item" onclick="editGaaItem({{ $category['gaa_id'] }})">
-                        Edit details
-                    </a>
-                </li>
-                <li>
                     <a class="dropdown-item"
                         onclick="addSubItem(`{{ $category['gaa_id'] }}`,`{{ $category['item_of_expenditure'] }}`,`{{ $category['object_type'] }}`)">
-                        Add sub-item
+                        Add Sub-item
                     </a>
                 </li>
                 @if (Request::is('project*') || Request::is('gaa*'))

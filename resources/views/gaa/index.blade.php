@@ -32,6 +32,54 @@
             </div>
         </div>
         <div class="card-body">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="info-box" style="background-color: #f3f5cb; height: 89px">
+                        <span class="info-box-icon bg-success"><i class="fas fa-dollar-sign"></i></span>
+                        <div class="info-box-content">
+                            <span class="info-box-text">{{$selectedYear}} Budget</span>
+                            <span class="info-box-number">{{ number_format($approved_budget->grand_total_amount, 2) }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="info-box" style="background-color: #f3f5cb; height: 89px">
+                        <span class="info-box-icon bg-ssi"><i class="fas fa-plus"></i></span>
+                        <div class="info-box-content">
+                            <span class="info-box-text">Incoming From Outside</span>
+                            <span class="info-box-number">{{ number_format($approved_budget->total_in, 2) }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="info-box" style="background-color: #f3f5cb">
+                        <span class="info-box-icon bg-ssi"><i class="fas fa-chart-line"></i></span>
+                        <div class="info-box-content">
+                            <span class="info-box-text">Total Expenditures</span>
+                            <span class="info-box-number">
+                                <span class="progress-description"> {{ number_format($approved_budget->total_out, 2) }} <span class="float-right">80% of
+                                        total
+                                        budget</span></span>
+                                <div class="progress">
+                                    <div class="progress-bar bg-success" role="progressbar" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100"
+                                        style="width: 80%"></div>
+                                </div>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="info-box" style="background-color: #f3f5cb; height: 89px">
+                        <span class="info-box-icon bg-warning"><i class="fas fa-balance-scale"></i></span>
+                        <div class="info-box-content">
+                            <span class="info-box-text">Remaining Balance</span>
+                            <span class="info-box-number">{{ number_format($approved_budget->remaining_balance, 2) }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
             <div class="row form-group">
                 <div class="col-sm">
                     <button class="btn btn-success" onclick="addGaa()">
@@ -99,6 +147,7 @@
                     @csrf
                     <input id="gaa_id" name="gaa_id" type="hidden">
                     <input id="parent_id" name="parent_id" type="hidden">
+                    <input id="project" name="project" type="hidden" value="0">
                     <input id="year" name="year" type="hidden" value="{{ $selectedYear }}">
                     <div class="modal-header">
                         <h5 class="modal-title" id="GAAitemLabel">GAA item details:</h5>
@@ -213,17 +262,9 @@
 @endsection
 
 @section('css')
-    @include('gaa.css')
+    @include('gaa.css') {{-- blade file --}}
 @endsection
 
 @section('js')
-    <script>
-        function addProject() {
-            $('#projectModal').modal('toggle');
-
-
-
-        }
-    </script>
-    @include('gaa.js')
+    @include('gaa.js') {{-- blade file --}}
 @endsection
