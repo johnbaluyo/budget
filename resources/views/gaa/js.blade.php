@@ -57,8 +57,39 @@
             $('#trackingModal').on('hidden.bs.modal', function() {
                 location.reload();
             });
+
+            $('#allocation').on('input', function() {
+                const allocation = parseFloat($(this).val());
+                const remainingBalance = parseFloat('{{ $approved_budget->remaining_balance }}');
+
+                if (allocation > remainingBalance) {
+                    Swal.fire(
+                        "Invalid Allocation",
+                        `The allocation amount cannot exceed the remaining balance of ${remainingBalance.toLocaleString()}.`,
+                        "warning"
+                    );
+                    $(this).val(''); // Clear the input field
+                }
+            });
+
+            $('#budget').on('input', function() {
+                const budget = parseFloat($(this).val());
+                const availableFund = parseFloat($('#available_fund').val());
+
+                if (budget > availableFund) {
+                    Swal.fire(
+                        "Invalid Budget Allocation",
+                        `The budget allocation cannot exceed the available fund of ${availableFund.toLocaleString()}.`,
+                        "warning"
+                    );
+                    $(this).val(''); // Clear the input field
+                }
+            });
         });
 
+        function addProject() {
+            $('#projectModal').modal('toggle');
+        }
 
         function toggleRealignSection(isChecked) {
             if (isChecked) {
@@ -82,7 +113,7 @@
         function loadTracking(gaa_id) {
             var formData = new FormData();
             formData.append('gaa_id', gaa_id);
-            formData.append('project_id', $('#project_id').val());
+            formData.append('project_id', '{{ $project->id }}');
             $.ajax({
                 url: "{{ URL::to('project/getExpenseId') }}",
                 method: 'POST',
@@ -234,7 +265,7 @@
                     var formData = new FormData();
                     formData.append('gaa_id', gaa_id);
                     formData.append('type', type);
-                    formData.append('project_id', $('#project_id').val());
+                    formData.append('project_id', '{{ $project->id }}');
                     $.ajax({
                         url: "{{ URL::to('gaa/delete') }}",
                         method: 'post',
@@ -453,5 +484,36 @@
                     appendDropdownOption(child, level + 1);
                 });
             }
+        }
+
+        function moveToOtherProject(gaa_id, project_id) {
+            var formData = new FormData();
+            formData.append('gaa_id', gaa_id);
+            formData.append('project_id', project_id);
+            $.ajax({
+                url: "{{ URL::to('project/moveToOtherProject') }}",
+                method: 'post',
+                data: formData,
+                dataType: 'json',
+                success: function(response) {
+                    if (response.message === 'success') {
+                        Swal.fire(
+                            "Success",
+                            "Item moved to another project.",
+                            "success"
+                        )
+                        location.reload();
+                    } else {
+                        Swal.fire(
+                            response.message,
+                            "System Message",
+                            "danger"
+                        )
+                    }
+                },
+                cache: false,
+                contentType: false,
+                processData: false
+            });
         }
     </script>

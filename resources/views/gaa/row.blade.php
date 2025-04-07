@@ -10,7 +10,7 @@
         @elseif ($level >= 3)
             -
         @endif
-        &nbsp;{{ $category['item_of_expenditure'] }}
+        &nbsp;{{ $category['item_of_expenditure'] }} <br>
         @php $row_total = 0; @endphp
 
     </td>
@@ -57,7 +57,7 @@
                     @if ($expense['gaa_project_id'] == $project->id)
                         @if (!is_null($expense['realign_from']))
                             <li class="hover-text" data-id="{{ $expense['id'] }}" data-activity="{{ $expense['date'] }}"
-                                data-remarks="{{ $expense['remarks'] }}">
+                                data-remarks="{{ $expense['remarks'] }}" data-type="{{ $expense['type'] }}">
                                 {{ number_format($expense['amount'], 2) }}
                                 @php $row_total += $expense['amount']; @endphp
                             </li>
@@ -74,7 +74,7 @@
                     @if ($expense['gaa_project_id'] == $project->id)
                         @if (!is_null($expense['realign_to']))
                             <li class="hover-text" data-id="{{ $expense['id'] }}" data-activity="{{ $expense['date'] }}"
-                                data-remarks="{{ $expense['remarks'] }}">
+                                data-remarks="{{ $expense['remarks'] }}" data-type="{{ $expense['type'] }}">
                                 {{ number_format($expense['amount'], 2) }}
                                 @php $row_total -= $expense['amount']; @endphp
                             </li>
@@ -91,7 +91,7 @@
                     @if ($expense['gaa_project_id'] == $project->id)
                         @if (is_null($expense['realign_from']) && is_null($expense['realign_to']))
                             <li class="hover-text" data-id="{{ $expense['id'] }}" data-activity="{{ $expense['date'] }}"
-                                data-remarks="{{ $expense['remarks'] }}">
+                                data-remarks="{{ $expense['remarks'] }}" data-type="{{ $expense['type'] }}">
                                 {{ $expense['type'] == 'IN' ? '+' : '-' }} {{ number_format($expense['amount'], 2) }}
                                 @php $row_total -= $expense['amount']; @endphp
                             </li>
@@ -119,19 +119,26 @@
                     <li>
                         <a class="dropdown-item bg-success"
                             onclick="addItemToProject(`{{ $category['gaa_id'] }}`,`{{ $category['item_of_expenditure'] }}`,`{{ $category['allocation'] }}`)">
-                            Add item to project
+                            Add Item to Project
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" onclick="editGaaItem({{ $category['gaa_id'] }})">
+                            Edit Fund / Details
+                        </a>
+                    </li>
+                @else
+                    <li>
+                        <a class="dropdown-item" onclick="moveToOtherProject(`{{ $category['gaa_id'] }}`,`{{ $project->id }}`)">
+                            Move Item To Other Project
+                            {{-- to do --}}
                         </a>
                     </li>
                 @endif
                 <li>
-                    <a class="dropdown-item" onclick="editGaaItem({{ $category['gaa_id'] }})">
-                        Edit details
-                    </a>
-                </li>
-                <li>
                     <a class="dropdown-item"
                         onclick="addSubItem(`{{ $category['gaa_id'] }}`,`{{ $category['item_of_expenditure'] }}`,`{{ $category['object_type'] }}`)">
-                        Add sub-item
+                        Add Sub-item
                     </a>
                 </li>
                 @if (Request::is('project*') || Request::is('gaa*'))
