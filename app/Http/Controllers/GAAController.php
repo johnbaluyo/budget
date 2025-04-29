@@ -22,6 +22,8 @@ class GAAController extends Controller
             'gaa.gaaProjects.expenses'
         ])->where('year', $selectedYear)->first();
 
+        $allocated_budget = GAA::where('approved_budget_id', $approved_budget->id)->sum('budget_allocation');
+
         if ($approved_budget) {
             $expenses = $approved_budget->gaa->flatMap(fn($gaa) => $gaa->gaaProjects->flatMap(fn($project) => $project->expenses));
             $totals = $expenses->filter(fn($expense) => $expense->realign_from === null && $expense->realign_to === null)
@@ -56,7 +58,7 @@ class GAAController extends Controller
             return redirect('/approvedbudget');
         }
         // return response()->json($categoryTree);
-        return view('gaa.index', compact('categoryTree', 'selectedYear', 'divisions', 'approved_budget'));
+        return view('gaa.index', compact('categoryTree', 'selectedYear', 'divisions', 'approved_budget', 'allocated_budget'));
     }
 
 
@@ -237,7 +239,7 @@ class GAAController extends Controller
                 ]);
             }
 
-            $approved_budget_id = ApprovedBudget::where('year', date('Y'))->first()->id;
+            $approved_budget_id = ApprovedBudget::where('year', $request->year)->first()->id;
             $model = GAA::findOrNew($request->gaa_id);
             $model->item_of_expenditure = $request->item_of_expenditure;
             $model->object_type = $request->object_type;

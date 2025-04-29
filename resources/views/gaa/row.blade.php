@@ -54,14 +54,12 @@
             <ul>
                 {{-- Loop through all expenses where realign_in is not empty --}}
                 @foreach ($category['expenses'] as $expense)
-                    @if ($expense['gaa_project_id'] == $project->id)
-                        @if (!is_null($expense['realign_from']))
-                            <li class="hover-text" data-id="{{ $expense['id'] }}" data-activity="{{ $expense['date'] }}"
-                                data-remarks="{{ $expense['remarks'] }}" data-type="{{ $expense['type'] }}">
-                                {{ number_format($expense['amount'], 2) }}
-                                @php $row_total += $expense['amount']; @endphp
-                            </li>
-                        @endif
+                    @if (!is_null($expense['realign_from']))
+                        <li class="hover-text" data-id="{{ $expense['id'] }}" data-activity="{{ $expense['date'] }}"
+                            data-remarks="{{ $expense['remarks'] }}" data-type="{{ $expense['type'] }}">
+                            {{ number_format($expense['amount'], 2) }}
+                            @php $row_total += $expense['amount']; @endphp
+                        </li>
                     @endif
                 @endforeach
             </ul>
@@ -71,14 +69,12 @@
             <ul>
                 {{-- Loop through all expenses where realign_out is not empty --}}
                 @foreach ($category['expenses'] as $expense)
-                    @if ($expense['gaa_project_id'] == $project->id)
-                        @if (!is_null($expense['realign_to']))
-                            <li class="hover-text" data-id="{{ $expense['id'] }}" data-activity="{{ $expense['date'] }}"
-                                data-remarks="{{ $expense['remarks'] }}" data-type="{{ $expense['type'] }}">
-                                {{ number_format($expense['amount'], 2) }}
-                                @php $row_total -= $expense['amount']; @endphp
-                            </li>
-                        @endif
+                    @if (!is_null($expense['realign_to']))
+                        <li class="hover-text" data-id="{{ $expense['id'] }}" data-activity="{{ $expense['date'] }}"
+                            data-remarks="{{ $expense['remarks'] }}" data-type="{{ $expense['type'] }}">
+                            {{ number_format($expense['amount'], 2) }}
+                            @php $row_total -= $expense['amount']; @endphp
+                        </li>
                     @endif
                 @endforeach
             </ul>
@@ -88,14 +84,12 @@
             <ul>
                 {{-- Loop through all expenses where both realign_out and realign_in are empty --}}
                 @foreach ($category['expenses'] as $expense)
-                    @if ($expense['gaa_project_id'] == $project->id)
-                        @if (is_null($expense['realign_from']) && is_null($expense['realign_to']))
-                            <li class="hover-text" data-id="{{ $expense['id'] }}" data-activity="{{ $expense['date'] }}"
-                                data-remarks="{{ $expense['remarks'] }}" data-type="{{ $expense['type'] }}">
-                                {{ $expense['type'] == 'IN' ? '+' : '-' }} {{ number_format($expense['amount'], 2) }}
-                                @php $row_total -= $expense['amount']; @endphp
-                            </li>
-                        @endif
+                    @if (is_null($expense['realign_from']) && is_null($expense['realign_to']))
+                        <li class="hover-text" data-id="{{ $expense['id'] }}" data-activity="{{ $expense['date'] }}"
+                            data-remarks="{{ $expense['remarks'] }}" data-type="{{ $expense['type'] }}">
+                            {{ $expense['type'] == 'IN' ? '+' : '-' }} {{ number_format($expense['amount'], 2) }}
+                            @php $row_total -= $expense['amount']; @endphp
+                        </li>
                     @endif
                 @endforeach
             </ul>
@@ -105,7 +99,7 @@
     <td>{{ number_format($row_total, 2) }}</td>
     <td class="d-flex justify-content-end">
 
-        @if (Request::is('project*'))
+        @if (Request::is('project*') && $row_total > 0)
             @if (empty($category['children']) || $category['allocation'] > 0)
                 <button class="btn btn-sm btn-success" onclick="showTracking(`{{ $category['gaa_id'] }}`)">Tracking</button>&nbsp;|&nbsp;
             @endif
@@ -118,7 +112,7 @@
                 @if (Request::is('gaa*'))
                     <li>
                         <a class="dropdown-item bg-success"
-                            onclick="addItemToProject(`{{ $category['gaa_id'] }}`,`{{ $category['item_of_expenditure'] }}`,`{{ $category['allocation'] }}`)">
+                            onclick="addItemToProject(`{{ $category['gaa_id'] }}`,`{{ $category['item_of_expenditure'] }}`,`{{ $row_total }}`)">
                             Add Item to Project
                         </a>
                     </li>

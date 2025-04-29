@@ -37,17 +37,30 @@
                     <div class="info-box" style="background-color: #f3f5cb; height: 89px">
                         <span class="info-box-icon bg-success"><i class="fas fa-dollar-sign"></i></span>
                         <div class="info-box-content">
-                            <span class="info-box-text">{{$selectedYear}} Budget</span>
+                            <span class="info-box-text">{{ $selectedYear }} Budget</span>
                             <span class="info-box-number">{{ number_format($approved_budget->grand_total_amount, 2) }}</span>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="info-box" style="background-color: #f3f5cb; height: 89px">
-                        <span class="info-box-icon bg-ssi"><i class="fas fa-plus"></i></span>
+                    <div class="info-box" style="background-color: #f3f5cb">
+                        <span class="info-box-icon bg-ssi"><i class="fas fa-file-invoice-dollar"></i></span>
                         <div class="info-box-content">
-                            <span class="info-box-text">Incoming From Outside</span>
-                            <span class="info-box-number">{{ number_format($approved_budget->total_in, 2) }}</span>
+                            <span class="info-box-text">Allocated</span>
+                            <span class="info-box-number">
+                                @php
+                                    $allocated_percentage =
+                                        $approved_budget->grand_total_amount > 0
+                                            ? ($allocated_budget / $approved_budget->grand_total_amount) * 100
+                                            : 0;
+                                @endphp
+                                {{ number_format($allocated_budget, 2) }}
+                                <span class="float-right">{{ number_format($allocated_percentage, 2) }}%</span>
+                                <div class="progress">
+                                    <div class="progress-bar bg-ssi" role="progressbar" aria-valuenow="{{ $allocated_percentage }}" aria-valuemin="0"
+                                        aria-valuemax="100" style="width: {{ $allocated_percentage }}%"></div>
+                                </div>
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -57,12 +70,19 @@
                         <div class="info-box-content">
                             <span class="info-box-text">Total Expenditures</span>
                             <span class="info-box-number">
-                                <span class="progress-description"> {{ number_format($approved_budget->total_out, 2) }} <span class="float-right">80% of
-                                        total
-                                        budget</span></span>
+                                @php
+                                    $percentage =
+                                        $approved_budget->grand_total_amount > 0
+                                            ? ($approved_budget->total_out / $approved_budget->grand_total_amount) * 100
+                                            : 0;
+                                @endphp
+                                <span class="progress-description">
+                                    {{ number_format($approved_budget->total_out, 2) }}
+                                    <span class="float-right">{{ number_format($percentage, 2) }}%</span>
+                                </span>
                                 <div class="progress">
-                                    <div class="progress-bar bg-success" role="progressbar" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100"
-                                        style="width: 80%"></div>
+                                    <div class="progress-bar bg-ssi" role="progressbar" aria-valuenow="{{ $percentage }}" aria-valuemin="0"
+                                        aria-valuemax="100" style="width: {{ $percentage }}%"></div>
                                 </div>
                             </span>
                         </div>
