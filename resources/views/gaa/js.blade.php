@@ -57,34 +57,6 @@
             $('#trackingModal').on('hidden.bs.modal', function() {
                 location.reload();
             });
-
-            $('#allocation').on('input', function() {
-                const allocation = parseFloat($(this).val());
-                const remainingBalance = parseFloat('{{ $approved_budget->remaining_balance }}');
-
-                if (allocation > remainingBalance) {
-                    Swal.fire(
-                        "Invalid Allocation",
-                        `The allocation amount cannot exceed the remaining balance of ${remainingBalance.toLocaleString()}.`,
-                        "warning"
-                    );
-                    $(this).val(''); // Clear the input field
-                }
-            });
-
-            $('#budget').on('input', function() {
-                const budget = parseFloat($(this).val());
-                const availableFund = parseFloat($('#available_fund').val());
-
-                if (budget > availableFund) {
-                    Swal.fire(
-                        "Invalid Budget Allocation",
-                        `The budget allocation cannot exceed the available fund of ${availableFund.toLocaleString()}.`,
-                        "warning"
-                    );
-                    $(this).val(''); // Clear the input field
-                }
-            });
         });
 
         function addProject() {
@@ -378,7 +350,7 @@
             $('#projectModal').modal('toggle');
 
 
-            
+
             $('#item_to_project_gaa_id').val(gaa_id);
             $('#available_fund').val(available_fund);
             $('#budget').val('');
@@ -392,7 +364,6 @@
             $('#parent_id').val('');
             $('#item_of_expenditure').val('');
             $('#division_id').val('');
-            $('#allocation').val('');
             $('#remarks').val('');
         }
 
@@ -412,7 +383,6 @@
                     $('#item_of_expenditure').val(response.item_of_expenditure);
                     $('#division_id').val(response.division_id);
                     $('#object_type').val(response.object_type);
-                    $('#allocation').val(response.budget_allocation);
                     $('#remarks').val(response.remarks);
                 },
                 cache: false,
@@ -429,12 +399,45 @@
             $('#item_of_expenditure').val('');
             $('#division_id').val('');
             $('#object_type').val(object_type);
-            $('#allocation').val('');
             $('#remarks').val('');
         }
 
-        function showRealign() {
-
+        function manageBudget(gaa_id) {
+            var formData = new FormData();
+            formData.append('gaa_id', gaa_id);
+            $.ajax({
+                url: "{{ URL::to('gaa/getGaaprojects') }}",
+                method: 'post',
+                data: formData,
+                dataType: 'json',
+                success: function(response) {
+                    $('#budgetModal').modal('toggle');
+                    $('#fund_gaa_id').val(gaa_id);
+                    $('#gaa_budget').val(response.gaa_allocation);
+                    $("#projectListBody").empty();
+                    if (response.gaa_projects.length > 0) {
+                        response.gaa_projects.forEach(function(item) {
+                            var row = `
+                            <tr>
+                                <td>${item.project.project_name}</td>
+                                <td>
+                                    <input type="number" class="form-control" id="budget_${item.project.id}" value="${item.project.budget}" style="width: 100px; display: inline-block;" onkeyup="this.value = this.value.replace(/[^0-9]/g, '');">
+                                </td>
+                                <td>
+                                    <button class="btn btn-primary btn-sm">edit</button>
+                                    <button class="btn btn-success btn-sm">save</button>
+                                </td>
+                            </tr>`;
+                            $("#projectListBody").append(row);
+                        });
+                    } else {
+                        $("#projectListBody").append('<tr><td colspan="4" class="text-center">No records found</td></tr>');
+                    }
+                },
+                cache: false,
+                contentType: false,
+                processData: false
+            })
         }
 
         function loadGaaFromProject() {

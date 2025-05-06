@@ -167,10 +167,9 @@
                     @csrf
                     <input id="gaa_id" name="gaa_id" type="hidden">
                     <input id="parent_id" name="parent_id" type="hidden">
-                    <input id="project" name="project" type="hidden" value="0">
                     <input id="year" name="year" type="hidden" value="{{ $selectedYear }}">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="GAAitemLabel">GAA item details:</h5>
+                        <h5 class="modal-title" id="GAAitemLabel">GAA Item Details</h5>
                         <button class="btn-close" data-bs-dismiss="modal" type="button" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
@@ -203,12 +202,6 @@
                                     <option>CO</option>
                                     <option>PS</option>
                                 </select>
-                            </div>
-                        </div>
-                        <div class="row form-group">
-                            <div class="col-sm">
-                                <label>Budget Allocation:</label>
-                                <input class="form-control" id="allocation" name="allocation" type="number">
                             </div>
                         </div>
                         <div class="row form-group">
@@ -276,6 +269,52 @@
                         <button class="btn btn-success mt-3">Save</button>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+
+    {{-- manage budget/fund modal --}}
+
+    <div class="modal fade" id="budgetModal" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="budgetModalLabel"
+        aria-hidden="true" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <input name="year" type="hidden" value="{{ $selectedYear }}">
+                <input id="fund_gaa_id" name="fund_gaa_id" type="hidden">
+                <div class="modal-header">
+                    <h5 class="modal-title">Manage Budget Allocation <span id="budgetModalLabel"></span></h5>
+                    <button class="btn-close" data-bs-dismiss="modal" type="button" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row form-group">
+                        <div class="col-sm">
+                            <label>GAA Item Budget:</label>
+                            <div class="input-group mb-3">
+                                <input class="form-control" id="gaa_budget" name="gaa_budget" type="number">
+                                <button class="btn btn-success" onclick="alert($('#fund_gaa_id').val());">
+                                    <span class="fa fa-check"></span> Save
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row form-group">
+                        <div class="col-sm">
+                            <label>Budget Allocation:</label>
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Project Name</th>
+                                        <th>Allocation</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="projectListBody">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

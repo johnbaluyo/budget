@@ -111,20 +111,25 @@
             <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
                 @if (Request::is('gaa*'))
                     <li>
-                        <a class="dropdown-item bg-success"
+                        <a class="dropdown-item"
                             onclick="addItemToProject(`{{ $category['gaa_id'] }}`,`{{ $category['item_of_expenditure'] }}`,`{{ $row_total }}`)">
-                            Add Item to Project
+                            <i class="fa fa-plus text-success"></i> Add Item to Project
                         </a>
                     </li>
                     <li>
                         <a class="dropdown-item" onclick="editGaaItem({{ $category['gaa_id'] }})">
-                            Edit Fund / Details
+                            <i class="fa fa-edit text-primary"></i> Edit Details
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" onclick="manageBudget({{ $category['gaa_id'] }})">
+                            <i class="fa fa-hand-holding-usd text-success"></i> Manage Budget / Allocation
                         </a>
                     </li>
                 @else
                     <li>
                         <a class="dropdown-item" onclick="moveToOtherProject(`{{ $category['gaa_id'] }}`,`{{ $project->id }}`)">
-                            Move Item To Other Project
+                            <i class="fa fa-exchange-alt text-primary"></i>Move Item To Other Project
                             {{-- to do --}}
                         </a>
                     </li>
@@ -132,13 +137,13 @@
                 <li>
                     <a class="dropdown-item"
                         onclick="addSubItem(`{{ $category['gaa_id'] }}`,`{{ $category['item_of_expenditure'] }}`,`{{ $category['object_type'] }}`)">
-                        Add Sub-item
+                        <i class="fa fa-plus-square text-success"></i> Add Sub-item
                     </a>
                 </li>
                 @if (Request::is('project*') || Request::is('gaa*'))
                     <li>
-                        <a class="dropdown-item bg-danger" onclick="_delete({{ $category['gaa_id'] }}, {{ Request::is('project*') ? 2 : 1 }})">
-                            {{ Request::is('project*') ? 'Remove item from Project' : 'Delete item from GAA' }}
+                        <a class="dropdown-item" onclick="_delete({{ $category['gaa_id'] }}, {{ Request::is('project*') ? 2 : 1 }})">
+                            <i class="fa fa-trash-alt text-red"></i> {{ Request::is('project*') ? 'item from Project' : 'Delete item from GAA' }}
                         </a>
                     </li>
                 @endif

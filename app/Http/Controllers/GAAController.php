@@ -13,6 +13,11 @@ use Illuminate\Http\Request;
 class GAAController extends Controller
 {
 
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     public function index(Request $request)
     {
         $currentYear = date('Y');
@@ -21,6 +26,10 @@ class GAAController extends Controller
         $approved_budget = ApprovedBudget::with([
             'gaa.gaaProjects.expenses'
         ])->where('year', $selectedYear)->first();
+
+        if (!$approved_budget) {
+            return redirect('/approvedbudget');
+        }
 
         $allocated_budget = GAA::where('approved_budget_id', $approved_budget->id)->sum('budget_allocation');
 
@@ -245,22 +254,10 @@ class GAAController extends Controller
             $model->object_type = $request->object_type;
             $model->fund_cluster = $request->fund_cluster;
             $model->division_id = $request->division_id;
-            $model->budget_allocation = $request->allocation;
             $model->remarks = $request->remarks;
             $model->parent_id = $request->parent_id;
             $model->approved_budget_id = $approved_budget_id;
             $model->save();
-
-            if ($request->project != 0) {
-                $gaa_project = GAAProject::where('project_id', $request->project)->where('gaa_id', $model->id)->first();
-                if (!$gaa_project) {
-                    $gaa_project = new GAAProject();
-                    $gaa_project->project_id = $request->project;
-                    $gaa_project->gaa_id = $model->id;
-                    $gaa_project->budget = $request->allocation;
-                    $gaa_project->save();
-                }
-            }
             return redirect()->back()->with([
                 'message' => 'Record saved successfully.',
                 'color' => 'success'
@@ -420,5 +417,19 @@ class GAAController extends Controller
         } catch (\Exception $e) {
             return response()->json(['message' => $e->getMessage()], 500);
         }
+    }
+
+
+    public function getGaaprojects(Request $request)
+    {
+        $gaa_allocation = GAA::find($request->gaa_id)->budget_allocation;
+        $gaa_projects = GAAProject::with('project')
+            ->where('gaa_id', $request->gaa_id)
+            ->get();
+
+        return response()->json([
+            'gaa_allocation' => $gaa_allocation,
+            'gaa_projects' => $gaa_projects,
+        ]);
     }
 }
