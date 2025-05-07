@@ -432,4 +432,28 @@ class GAAController extends Controller
             'gaa_projects' => $gaa_projects,
         ]);
     }
+
+    public function saveProjectAllocation(Request $request)
+    {
+        try {
+            $gaa_project = GAAProject::find($request->gaa_project_id);
+            $gaa_project->budget = $request->budget;
+            $gaa_project->save();
+            return response()->json(['message' => 'success']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function saveGAABudget(Request $request)
+    {
+        try {
+            $gaa = GAA::find($request->fund_gaa_id);
+            $gaa->budget_allocation = $request->gaa_budget;
+            $gaa->save();
+            return response()->json(['message' => 'success']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
 }

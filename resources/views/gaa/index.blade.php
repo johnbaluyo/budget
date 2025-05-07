@@ -279,8 +279,6 @@
         aria-hidden="true" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                <input name="year" type="hidden" value="{{ $selectedYear }}">
-                <input id="fund_gaa_id" name="fund_gaa_id" type="hidden">
                 <div class="modal-header">
                     <h5 class="modal-title">Manage Budget Allocation <span id="budgetModalLabel"></span></h5>
                     <button class="btn-close" data-bs-dismiss="modal" type="button" aria-label="Close"></button>
@@ -289,12 +287,18 @@
                     <div class="row form-group">
                         <div class="col-sm">
                             <label>GAA Item Budget:</label>
-                            <div class="input-group mb-3">
-                                <input class="form-control" id="gaa_budget" name="gaa_budget" type="number">
-                                <button class="btn btn-success" onclick="alert($('#fund_gaa_id').val());">
-                                    <span class="fa fa-check"></span> Save
-                                </button>
-                            </div>
+                            <form id="gaa_budget_form">
+                                <div class="input-group mb-3">
+                                    <input id="fund_gaa_id" name="fund_gaa_id" type="hidden">
+                                    <input class="form-control" id="gaa_budget" name="gaa_budget" type="number" readonly>
+                                    <button class="btn btn-primary" id="editBudgetButton" type="button">
+                                        <span class="fa fa-edit"></span> Edit
+                                    </button>
+                                    <button class="btn btn-success d-none" id="saveBudgetButton" type="button">
+                                        <span class="fa fa-check"></span> Save
+                                    </button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                     <hr>

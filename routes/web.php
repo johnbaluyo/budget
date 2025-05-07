@@ -52,6 +52,8 @@ Route::post('/gaa/delete', 'GAAController@delete');
 Route::post('/gaa/store', 'GAAController@store');
 Route::post('/gaa/edit', 'GAAController@edit');
 Route::post('/gaa/getGaaprojects', 'GAAController@getGaaprojects');
+Route::post('/gaa/saveProjectAllocation', 'GAAController@saveProjectAllocation');
+Route::post('/gaa/saveGAABudget', 'GAAController@saveGAABudget');
 Route::get('/project/{id}', 'GAAController@project')->name('project');
 Route::post('/project/saveItemToProject', 'GAAController@saveItemToProject');
 Route::post('/project/getExpenseId', 'GAAController@getExpenseId');

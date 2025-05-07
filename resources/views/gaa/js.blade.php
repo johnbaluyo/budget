@@ -57,6 +57,51 @@
             $('#trackingModal').on('hidden.bs.modal', function() {
                 location.reload();
             });
+
+            $('#editBudgetButton').on('click', function() {
+                // Enable the input field
+                $('#gaa_budget').prop('readonly', false);
+
+                // Show the Save button and hide the Edit button
+                $('#editBudgetButton').addClass('d-none');
+                $('#saveBudgetButton').removeClass('d-none');
+            });
+
+            // Handle Save button click
+            $('#saveBudgetButton').on('click', function(e) {
+                e.preventDefault(); // Prevent the default form submission
+
+                const formData = new FormData($('#gaa_budget_form')[0]);
+
+                $.ajax({
+                    url: "{{ URL::to('/gaa/saveGAABudget') }}", // Endpoint for saving the budget
+                    method: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        if (response.message === 'success') {
+                            Swal.fire("Success", "Budget saved successfully.", "success");
+
+                            // Disable the input field again
+                            $('#gaa_budget').prop('readonly', true);
+
+                            // Show the Edit button and hide the Save button
+                            $('#editBudgetButton').removeClass('d-none');
+                            $('#saveBudgetButton').addClass('d-none');
+                        } else {
+                            Swal.fire("Error", response.message, "error");
+                        }
+                    },
+                    error: function(xhr) {
+                        Swal.fire("Error", xhr.responseJSON.message || "An error occurred.", "error");
+                    }
+                });
+            });
+
+            $('#budgetModal').on('hidden.bs.modal', function() {
+                location.reload(); // Refresh the page
+            });
         });
 
         function addProject() {
@@ -415,29 +460,77 @@
                     $('#fund_gaa_id').val(gaa_id);
                     $('#gaa_budget').val(response.gaa_allocation);
                     $("#projectListBody").empty();
+
                     if (response.gaa_projects.length > 0) {
                         response.gaa_projects.forEach(function(item) {
                             var row = `
-                            <tr>
-                                <td>${item.project.project_name}</td>
-                                <td>
-                                    <input type="number" class="form-control" id="budget_${item.project.id}" value="${item.project.budget}" style="width: 100px; display: inline-block;" onkeyup="this.value = this.value.replace(/[^0-9]/g, '');">
-                                </td>
-                                <td>
-                                    <button class="btn btn-primary btn-sm">edit</button>
-                                    <button class="btn btn-success btn-sm">save</button>
-                                </td>
-                            </tr>`;
+                    <tr>
+                        <td>${item.project.project_name}</td>
+                        <td>
+                            <input type="number" class="form-control" id="budget_${item.project.id}" value="${item.budget}" style="display: inline-block;" readonly>
+                        </td>
+                        <td>
+                            <button class="btn btn-primary btn-sm" id="editBtn_${item.project.id}" onclick="enableEdit(${item.project.id})">Edit</button>
+                            <button class="btn btn-success btn-sm d-none" id="saveBtn_${item.project.id}" onclick="saveProjectAllocation(${item.project.id}, ${gaa_id})">Save</button>
+                        </td>
+                    </tr>`;
                             $("#projectListBody").append(row);
                         });
                     } else {
-                        $("#projectListBody").append('<tr><td colspan="4" class="text-center">No records found</td></tr>');
+                        $("#projectListBody").append('<tr><td colspan="3" class="text-center">No records found</td></tr>');
                     }
                 },
                 cache: false,
                 contentType: false,
                 processData: false
-            })
+            });
+        }
+
+        function enableEdit(projectId) {
+            // Enable the input field
+            $(`#budget_${projectId}`).prop('readonly', false);
+
+            // Show the Save button and hide the Edit button
+            $(`#editBtn_${projectId}`).addClass('d-none');
+            $(`#saveBtn_${projectId}`).removeClass('d-none');
+        }
+
+        function saveProjectAllocation(projectId, gaaId) {
+            const budget = $(`#budget_${projectId}`).val();
+            if (!budget || budget <= 0) {
+                Swal.fire("Invalid Budget", "Please enter a valid budget amount.", "warning");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('gaa_project_id', gaaId);
+            formData.append('project_id', projectId);
+            formData.append('budget', budget);
+
+            $.ajax({
+                url: "{{ URL::to('gaa/saveProjectAllocation') }}",
+                method: 'post',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    if (response.message === 'success') {
+                        Swal.fire("Success", "Budget allocation updated successfully.", "success");
+
+                        // Disable the input field again
+                        $(`#budget_${projectId}`).prop('readonly', true);
+
+                        // Show the Edit button and hide the Save button
+                        $(`#editBtn_${projectId}`).removeClass('d-none');
+                        $(`#saveBtn_${projectId}`).addClass('d-none');
+                    } else {
+                        Swal.fire("Error", response.message, "error");
+                    }
+                },
+                error: function(xhr) {
+                    Swal.fire("Error", xhr.responseJSON.message, "error");
+                }
+            });
         }
 
         function loadGaaFromProject() {
