@@ -26,6 +26,11 @@
             @endif
         </td>
         <td>
+            @if ($category['allocation'] > 0)
+                {{ number_format($category['allocated_budget'], 2) }}
+            @endif
+        </td>
+        <td>
             {{-- expenses --}}
             @foreach ($category['expenses'] as $expense)
                 @if (is_null($expense['realign_from']) && is_null($expense['realign_to']))
@@ -96,7 +101,11 @@
         </td>
     @endif
 
-    <td>{{ number_format($row_total, 2) }}</td>
+    <td>
+        @if ($row_total > 0)
+            {{ number_format($row_total, 2) }}
+        @endif
+    </td>
     <td class="d-flex justify-content-end">
 
         @if (Request::is('project*') && $row_total > 0)

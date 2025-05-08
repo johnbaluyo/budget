@@ -122,6 +122,8 @@
                                 @if (!Request::is('gaa*'))
                                     <th>Realign IN</th>
                                     <th>Realign OUT</th>
+                                @else
+                                    <th>Allocated</th>
                                 @endif
                                 <th>Budget Tracking </th>
                                 <th>Balance</th>
@@ -299,6 +301,12 @@
                                     </button>
                                 </div>
                             </form>
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-sm">
+                            <label>Unallocated fund:</label>
+                            <input class="form-control" id="unallocated_fund" name="unallocated_fund" type="number" readonly>
                         </div>
                     </div>
                     <hr>

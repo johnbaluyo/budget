@@ -97,6 +97,7 @@ class GAAController extends Controller
                     'remaining_balance' => $remaining_balance, // Include remaining_balance only if no children
                     'expenses' => $expenses,
                     'children' => $children,
+                    'allocated_budget' => $category->gaaProjects->sum('budget'),
                 ];
             }
         }

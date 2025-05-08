@@ -461,8 +461,12 @@
                     $('#gaa_budget').val(response.gaa_allocation);
                     $("#projectListBody").empty();
 
+                    let totalAllocated = 0;
+
                     if (response.gaa_projects.length > 0) {
                         response.gaa_projects.forEach(function(item) {
+                            totalAllocated += parseFloat(item.budget);
+
                             var row = `
                     <tr>
                         <td>${item.project.project_name}</td>
@@ -479,6 +483,13 @@
                     } else {
                         $("#projectListBody").append('<tr><td colspan="3" class="text-center">No records found</td></tr>');
                     }
+
+                    // Calculate unallocated fund
+                    const gaaBudget = parseFloat(response.gaa_allocation) || 0;
+                    const unallocatedFund = gaaBudget - totalAllocated;
+
+                    // Update the unallocated_fund input field
+                    $('#unallocated_fund').val(unallocatedFund.toFixed(2));
                 },
                 cache: false,
                 contentType: false,
