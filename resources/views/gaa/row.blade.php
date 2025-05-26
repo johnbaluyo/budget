@@ -103,7 +103,7 @@
 
     <td>
         @if ($row_total > 0)
-            {{ number_format($row_total, 2) }}
+            {{ number_format($row_total - $category['allocated_budget'], 2) }}
         @endif
     </td>
     <td class="d-flex justify-content-end">
@@ -121,7 +121,7 @@
                 @if (Request::is('gaa*'))
                     <li>
                         <a class="dropdown-item"
-                            onclick="addItemToProject(`{{ $category['gaa_id'] }}`,`{{ $category['item_of_expenditure'] }}`,`{{ $row_total }}`)">
+                            onclick="addItemToProject(`{{ $category['gaa_id'] }}`,`{{ $category['item_of_expenditure'] }}`,`{{ $row_total - $category['allocated_budget'] }}`)">
                             <i class="fa fa-plus text-success"></i> Add Item to Project
                         </a>
                     </li>
@@ -131,7 +131,7 @@
                         </a>
                     </li>
                     <li>
-                        <a class="dropdown-item" onclick="manageBudget({{ $category['gaa_id'] }})">
+                        <a class="dropdown-item" onclick="manageBudget({{ $category['gaa_id'] }},`{{ $category['item_of_expenditure'] }}`)">
                             <i class="fa fa-hand-holding-usd text-success"></i> Manage Budget / Allocation
                         </a>
                     </li>

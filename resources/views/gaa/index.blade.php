@@ -282,7 +282,7 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Manage Budget Allocation <span id="budgetModalLabel"></span></h5>
+                    <h5 class="modal-title">Manage Budget Allocation: <span id="budgetModalLabel"></span></h5>
                     <button class="btn-close" data-bs-dismiss="modal" type="button" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">

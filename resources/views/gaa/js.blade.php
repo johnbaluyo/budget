@@ -444,7 +444,7 @@
             $('#remarks').val('');
         }
 
-        function manageBudget(gaa_id) {
+        function manageBudget(gaa_id,item_of_expenditure) {
             var formData = new FormData();
             formData.append('gaa_id', gaa_id);
             $.ajax({
@@ -456,6 +456,7 @@
                     $('#budgetModal').modal('toggle');
                     $('#fund_gaa_id').val(gaa_id);
                     $('#gaa_budget').val(response.gaa_allocation);
+                    $('#budgetModalLabel').html(item_of_expenditure);
                     $("#projectListBody").empty();
 
                     let totalAllocated = 0;
