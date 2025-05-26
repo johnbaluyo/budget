@@ -25,6 +25,7 @@
             content: "";
             position: absolute;
             top: 0;
+            background-color: rgba(29, 70, 128, 0.6);
             left: 0;
             width: 100%;
             height: 100%;
