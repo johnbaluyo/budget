@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="row">
-    <h2 style="font-family: Verdana, sans-serif;">Single Sign-In</h2>
+    <h2 style="font-family: Verdana, sans-serif;">Budget Tracking</h2>
 </div>
 <div class="row">
     <form class="form-group" method="POST" action="{{URL::to('login')}}">
