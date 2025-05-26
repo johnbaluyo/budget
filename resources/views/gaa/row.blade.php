@@ -44,6 +44,12 @@
                 @endif
             @endforeach
         </td>
+
+        <td>
+            @if ($row_total > 0)
+                {{ number_format($row_total - $category['allocated_budget'], 2) }}
+            @endif
+        </td>
     @else
         {{-- projects --}}
         <td>
@@ -99,13 +105,13 @@
                 @endforeach
             </ul>
         </td>
-    @endif
 
-    <td>
-        @if ($row_total > 0)
-            {{ number_format($row_total - $category['allocated_budget'], 2) }}
-        @endif
-    </td>
+        <td>
+            @if ($row_total > 0)
+                {{ number_format($row_total, 2) }}
+            @endif
+        </td>
+    @endif
     <td class="d-flex justify-content-end">
 
         @if (Request::is('project*') && $row_total > 0)
