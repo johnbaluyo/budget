@@ -58,32 +58,49 @@
                 location.reload();
             });
 
-            $('#allocation').on('input', function() {
-                const allocation = parseFloat($(this).val());
-                const remainingBalance = parseFloat('{{ $approved_budget->remaining_balance }}');
+            $('#editBudgetButton').on('click', function() {
+                // Enable the input field
+                $('#gaa_budget').prop('readonly', false);
 
-                if (allocation > remainingBalance) {
-                    Swal.fire(
-                        "Invalid Allocation",
-                        `The allocation amount cannot exceed the remaining balance of ${remainingBalance.toLocaleString()}.`,
-                        "warning"
-                    );
-                    $(this).val(''); // Clear the input field
-                }
+                // Show the Save button and hide the Edit button
+                $('#editBudgetButton').addClass('d-none');
+                $('#saveBudgetButton').removeClass('d-none');
             });
 
-            $('#budget').on('input', function() {
-                const budget = parseFloat($(this).val());
-                const availableFund = parseFloat($('#available_fund').val());
+            // Handle Save button click
+            $('#saveBudgetButton').on('click', function(e) {
+                e.preventDefault(); // Prevent the default form submission
 
-                if (budget > availableFund) {
-                    Swal.fire(
-                        "Invalid Budget Allocation",
-                        `The budget allocation cannot exceed the available fund of ${availableFund.toLocaleString()}.`,
-                        "warning"
-                    );
-                    $(this).val(''); // Clear the input field
-                }
+                const formData = new FormData($('#gaa_budget_form')[0]);
+
+                $.ajax({
+                    url: "{{ URL::to('/gaa/saveGAABudget') }}", // Endpoint for saving the budget
+                    method: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        if (response.message === 'success') {
+                            Swal.fire("Success", "Budget saved successfully.", "success");
+
+                            // Disable the input field again
+                            $('#gaa_budget').prop('readonly', true);
+
+                            // Show the Edit button and hide the Save button
+                            $('#editBudgetButton').removeClass('d-none');
+                            $('#saveBudgetButton').addClass('d-none');
+                        } else {
+                            Swal.fire("Error", response.message, "error");
+                        }
+                    },
+                    error: function(xhr) {
+                        Swal.fire("Error", xhr.responseJSON.message || "An error occurred.", "error");
+                    }
+                });
+            });
+
+            $('#budgetModal').on('hidden.bs.modal', function() {
+                location.reload(); // Refresh the page
             });
         });
 
@@ -389,7 +406,6 @@
             $('#parent_id').val('');
             $('#item_of_expenditure').val('');
             $('#division_id').val('');
-            $('#allocation').val('');
             $('#remarks').val('');
         }
 
@@ -409,7 +425,6 @@
                     $('#item_of_expenditure').val(response.item_of_expenditure);
                     $('#division_id').val(response.division_id);
                     $('#object_type').val(response.object_type);
-                    $('#allocation').val(response.budget_allocation);
                     $('#remarks').val(response.remarks);
                 },
                 cache: false,
@@ -426,11 +441,133 @@
             $('#item_of_expenditure').val('');
             $('#division_id').val('');
             $('#object_type').val(object_type);
-            $('#allocation').val('');
             $('#remarks').val('');
         }
 
-        function showRealign() {
+        function manageBudget(gaa_id) {
+            var formData = new FormData();
+            formData.append('gaa_id', gaa_id);
+            $.ajax({
+                url: "{{ URL::to('gaa/getGaaprojects') }}",
+                method: 'post',
+                data: formData,
+                dataType: 'json',
+                success: function(response) {
+                    $('#budgetModal').modal('toggle');
+                    $('#fund_gaa_id').val(gaa_id);
+                    $('#gaa_budget').val(response.gaa_allocation);
+                    $("#projectListBody").empty();
+
+                    let totalAllocated = 0;
+
+                    if (response.gaa_projects.length > 0) {
+                        response.gaa_projects.forEach(function(item) {
+                            totalAllocated += parseFloat(item.budget);
+
+                            var row = `
+                                <tr>
+                                    <td>${item.project.project_name}</td>
+                                    <td>
+                                        <input type="number" class="form-control" id="budget_${item.project.id}" value="${item.budget}" style="display: inline-block;" readonly>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-primary btn-sm" id="editBtn_${item.project.id}" onclick="enableEdit(${item.project.id})">Edit</button>
+                                        <button class="btn btn-danger btn-sm d-none" id="cancelBtn_${item.project.id}" onclick="cancelEdit(${item.project.id}, ${item.budget})">Cancel</button>
+                                        <button class="btn btn-success btn-sm d-none" id="saveBtn_${item.project.id}" onclick="saveProjectAllocation(${item.project.id}, ${gaa_id})">Save</button>
+                                    </td>
+                                </tr>`;
+                            $("#projectListBody").append(row);
+                        });
+                    } else {
+                        $("#projectListBody").append('<tr><td colspan="3" class="text-center">No records found</td></tr>');
+                    }
+
+                    // Calculate unallocated fund
+                    const gaaBudget = parseFloat(response.gaa_allocation) || 0;
+                    const unallocatedFund = gaaBudget - totalAllocated;
+
+                    // Update the unallocated_fund input field
+                    $('#unallocated_fund').val(unallocatedFund.toFixed(2));
+                },
+                cache: false,
+                contentType: false,
+                processData: false
+            });
+        }
+
+        function cancelEdit(projectId, originalBudget) {
+            $(`#budget_${projectId}`).val(originalBudget);
+            $(`#budget_${projectId}`).prop('readonly', true);
+            $(`#editBtn_${projectId}`).removeClass('d-none');
+            $(`#saveBtn_${projectId}`).addClass('d-none');
+            $(`#cancelBtn_${projectId}`).addClass('d-none');
+        }
+
+        function enableEdit(projectId) {
+            $(`#budget_${projectId}`).prop('readonly', false);
+            $(`#editBtn_${projectId}`).addClass('d-none');
+            $(`#saveBtn_${projectId}`).removeClass('d-none');
+            $(`#cancelBtn_${projectId}`).removeClass('d-none');
+        }
+
+        function saveProjectAllocation(projectId, gaaId) {
+            const budget = parseFloat($(`#budget_${projectId}`).val());
+            if (!budget || budget <= 0) {
+                Swal.fire("Invalid Budget", "Please enter a valid budget amount.", "warning");
+                return;
+            }
+
+            let totalAllocated = 0;
+            $('#projectListBody input[type="number"]').each(function() {
+                totalAllocated += parseFloat($(this).val()) || 0;
+            });
+
+            const gaaBudget = parseFloat($('#gaa_budget').val()) || 0;
+
+            if (totalAllocated > gaaBudget) {
+                Swal.fire("Allocation Exceeded", "The total allocation cannot exceed the GAA budget.", "error");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('gaa_project_id', gaaId);
+            formData.append('project_id', projectId);
+            formData.append('budget', budget);
+
+            $.ajax({
+                url: "{{ URL::to('gaa/saveProjectAllocation') }}",
+                method: 'post',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    if (response.message === 'success') {
+                        Swal.fire("Success", "Budget allocation updated successfully.", "success");
+                        $(`#budget_${projectId}`).prop('readonly', true);
+                        $(`#editBtn_${projectId}`).removeClass('d-none');
+                        $(`#saveBtn_${projectId}`).addClass('d-none');
+                        updateUnallocatedFund();
+                        cancelEdit(projectId, budget);
+                    } else {
+                        Swal.fire("Error", response.message, "error");
+                    }
+                },
+                error: function(xhr) {
+                    Swal.fire("Error", xhr.responseJSON.message, "error");
+                }
+            });
+        }
+
+        function updateUnallocatedFund() {
+            let totalAllocated = 0;
+            $('#projectListBody input[type="number"]').each(function() {
+                totalAllocated += parseFloat($(this).val()) || 0;
+            });
+
+            const gaaBudget = parseFloat($('#gaa_budget').val()) || 0;
+            const unallocatedFund = gaaBudget - totalAllocated;
+
+            $('#unallocated_fund').val(unallocatedFund.toFixed(2));
 
         }
 

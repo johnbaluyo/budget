@@ -34,9 +34,6 @@
         <div class="card-body">
             <div class="row form-group">
                 <div class="col-sm">
-                    <button class="btn btn-success" onclick="addItemToProject()">
-                        <span class="fa fa-plus"></span> Add Item Project
-                    </button>
                     <button class="btn btn-ssi float-right" onclick="printTable()">
                         <span class="fa fa-print"></span> Print Table
                     </button>
@@ -143,8 +140,8 @@
                     </div>
                     <div class="row form-group" id="realignButton" style="display: none;">
                         <div class="col-sm">
-                            <button class="btn btn-ssi btn-lg" id="btn_realign" onclick="updateTracking('OUT')"><span
-                                    class="fa fa-exchange-alt"></span> Realign Fund
+                            <button class="btn btn-ssi btn-lg" id="btn_realign" onclick="updateTracking('OUT')"><span class="fa fa-exchange-alt"></span>
+                                Realign Fund
                                 (OUT)</button>
                         </div>
                     </div>

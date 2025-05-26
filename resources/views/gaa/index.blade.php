@@ -37,17 +37,30 @@
                     <div class="info-box" style="background-color: #f3f5cb; height: 89px">
                         <span class="info-box-icon bg-success"><i class="fas fa-dollar-sign"></i></span>
                         <div class="info-box-content">
-                            <span class="info-box-text">{{$selectedYear}} Budget</span>
+                            <span class="info-box-text">{{ $selectedYear }} Budget</span>
                             <span class="info-box-number">{{ number_format($approved_budget->grand_total_amount, 2) }}</span>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="info-box" style="background-color: #f3f5cb; height: 89px">
-                        <span class="info-box-icon bg-ssi"><i class="fas fa-plus"></i></span>
+                    <div class="info-box" style="background-color: #f3f5cb">
+                        <span class="info-box-icon bg-ssi"><i class="fas fa-file-invoice-dollar"></i></span>
                         <div class="info-box-content">
-                            <span class="info-box-text">Incoming From Outside</span>
-                            <span class="info-box-number">{{ number_format($approved_budget->total_in, 2) }}</span>
+                            <span class="info-box-text">Allocated</span>
+                            <span class="info-box-number">
+                                @php
+                                    $allocated_percentage =
+                                        $approved_budget->grand_total_amount > 0
+                                            ? ($allocated_budget / $approved_budget->grand_total_amount) * 100
+                                            : 0;
+                                @endphp
+                                {{ number_format($allocated_budget, 2) }}
+                                <span class="float-right">{{ number_format($allocated_percentage, 2) }}%</span>
+                                <div class="progress">
+                                    <div class="progress-bar bg-ssi" role="progressbar" aria-valuenow="{{ $allocated_percentage }}" aria-valuemin="0"
+                                        aria-valuemax="100" style="width: {{ $allocated_percentage }}%"></div>
+                                </div>
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -57,12 +70,19 @@
                         <div class="info-box-content">
                             <span class="info-box-text">Total Expenditures</span>
                             <span class="info-box-number">
-                                <span class="progress-description"> {{ number_format($approved_budget->total_out, 2) }} <span class="float-right">80% of
-                                        total
-                                        budget</span></span>
+                                @php
+                                    $percentage =
+                                        $approved_budget->grand_total_amount > 0
+                                            ? ($approved_budget->total_out / $approved_budget->grand_total_amount) * 100
+                                            : 0;
+                                @endphp
+                                <span class="progress-description">
+                                    {{ number_format($approved_budget->total_out, 2) }}
+                                    <span class="float-right">{{ number_format($percentage, 2) }}%</span>
+                                </span>
                                 <div class="progress">
-                                    <div class="progress-bar bg-success" role="progressbar" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100"
-                                        style="width: 80%"></div>
+                                    <div class="progress-bar bg-ssi" role="progressbar" aria-valuenow="{{ $percentage }}" aria-valuemin="0"
+                                        aria-valuemax="100" style="width: {{ $percentage }}%"></div>
                                 </div>
                             </span>
                         </div>
@@ -102,6 +122,8 @@
                                 @if (!Request::is('gaa*'))
                                     <th>Realign IN</th>
                                     <th>Realign OUT</th>
+                                @else
+                                    <th>Allocated</th>
                                 @endif
                                 <th>Budget Tracking </th>
                                 <th>Balance</th>
@@ -147,10 +169,9 @@
                     @csrf
                     <input id="gaa_id" name="gaa_id" type="hidden">
                     <input id="parent_id" name="parent_id" type="hidden">
-                    <input id="project" name="project" type="hidden" value="0">
                     <input id="year" name="year" type="hidden" value="{{ $selectedYear }}">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="GAAitemLabel">GAA item details:</h5>
+                        <h5 class="modal-title" id="GAAitemLabel">GAA Item Details</h5>
                         <button class="btn-close" data-bs-dismiss="modal" type="button" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
@@ -183,12 +204,6 @@
                                     <option>CO</option>
                                     <option>PS</option>
                                 </select>
-                            </div>
-                        </div>
-                        <div class="row form-group">
-                            <div class="col-sm">
-                                <label>Budget Allocation:</label>
-                                <input class="form-control" id="allocation" name="allocation" type="number">
                             </div>
                         </div>
                         <div class="row form-group">
@@ -256,6 +271,62 @@
                         <button class="btn btn-success mt-3">Save</button>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+
+    {{-- manage budget/fund modal --}}
+
+    <div class="modal fade" id="budgetModal" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="budgetModalLabel"
+        aria-hidden="true" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Manage Budget Allocation <span id="budgetModalLabel"></span></h5>
+                    <button class="btn-close" data-bs-dismiss="modal" type="button" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row form-group">
+                        <div class="col-sm">
+                            <label>GAA Item Budget:</label>
+                            <form id="gaa_budget_form">
+                                <div class="input-group mb-3">
+                                    <input id="fund_gaa_id" name="fund_gaa_id" type="hidden">
+                                    <input class="form-control" id="gaa_budget" name="gaa_budget" type="number" readonly>
+                                    <button class="btn btn-primary" id="editBudgetButton" type="button">
+                                        <span class="fa fa-edit"></span> Edit
+                                    </button>
+                                    <button class="btn btn-success d-none" id="saveBudgetButton" type="button">
+                                        <span class="fa fa-check"></span> Save
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-sm">
+                            <label>Unallocated fund:</label>
+                            <input class="form-control" id="unallocated_fund" name="unallocated_fund" type="number" readonly>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row form-group">
+                        <div class="col-sm">
+                            <label>Budget Allocation:</label>
+                            <table class="table table-bordered" id="projectListTable">
+                                <thead>
+                                    <tr>
+                                        <th>Project Name</th>
+                                        <th>Allocation</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="projectListBody">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
