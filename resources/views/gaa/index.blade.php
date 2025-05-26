@@ -313,7 +313,7 @@
                     <div class="row form-group">
                         <div class="col-sm">
                             <label>Budget Allocation:</label>
-                            <table class="table table-bordered">
+                            <table class="table table-bordered" id="projectListTable">
                                 <thead>
                                     <tr>
                                         <th>Project Name</th>

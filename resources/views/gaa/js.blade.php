@@ -393,9 +393,6 @@
 
         function addItemToProject(gaa_id, item_of_expenditure, available_fund) {
             $('#projectModal').modal('toggle');
-
-
-
             $('#item_to_project_gaa_id').val(gaa_id);
             $('#available_fund').val(available_fund);
             $('#budget').val('');
@@ -468,16 +465,17 @@
                             totalAllocated += parseFloat(item.budget);
 
                             var row = `
-                    <tr>
-                        <td>${item.project.project_name}</td>
-                        <td>
-                            <input type="number" class="form-control" id="budget_${item.project.id}" value="${item.budget}" style="display: inline-block;" readonly>
-                        </td>
-                        <td>
-                            <button class="btn btn-primary btn-sm" id="editBtn_${item.project.id}" onclick="enableEdit(${item.project.id})">Edit</button>
-                            <button class="btn btn-success btn-sm d-none" id="saveBtn_${item.project.id}" onclick="saveProjectAllocation(${item.project.id}, ${gaa_id})">Save</button>
-                        </td>
-                    </tr>`;
+                                <tr>
+                                    <td>${item.project.project_name}</td>
+                                    <td>
+                                        <input type="number" class="form-control" id="budget_${item.project.id}" value="${item.budget}" style="display: inline-block;" readonly>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-primary btn-sm" id="editBtn_${item.project.id}" onclick="enableEdit(${item.project.id})">Edit</button>
+                                        <button class="btn btn-danger btn-sm d-none" id="cancelBtn_${item.project.id}" onclick="cancelEdit(${item.project.id}, ${item.budget})">Cancel</button>
+                                        <button class="btn btn-success btn-sm d-none" id="saveBtn_${item.project.id}" onclick="saveProjectAllocation(${item.project.id}, ${gaa_id})">Save</button>
+                                    </td>
+                                </tr>`;
                             $("#projectListBody").append(row);
                         });
                     } else {
@@ -497,19 +495,37 @@
             });
         }
 
-        function enableEdit(projectId) {
-            // Enable the input field
-            $(`#budget_${projectId}`).prop('readonly', false);
+        function cancelEdit(projectId, originalBudget) {
+            $(`#budget_${projectId}`).val(originalBudget);
+            $(`#budget_${projectId}`).prop('readonly', true);
+            $(`#editBtn_${projectId}`).removeClass('d-none');
+            $(`#saveBtn_${projectId}`).addClass('d-none');
+            $(`#cancelBtn_${projectId}`).addClass('d-none');
+        }
 
-            // Show the Save button and hide the Edit button
+        function enableEdit(projectId) {
+            $(`#budget_${projectId}`).prop('readonly', false);
             $(`#editBtn_${projectId}`).addClass('d-none');
             $(`#saveBtn_${projectId}`).removeClass('d-none');
+            $(`#cancelBtn_${projectId}`).removeClass('d-none');
         }
 
         function saveProjectAllocation(projectId, gaaId) {
-            const budget = $(`#budget_${projectId}`).val();
+            const budget = parseFloat($(`#budget_${projectId}`).val());
             if (!budget || budget <= 0) {
                 Swal.fire("Invalid Budget", "Please enter a valid budget amount.", "warning");
+                return;
+            }
+
+            let totalAllocated = 0;
+            $('#projectListBody input[type="number"]').each(function() {
+                totalAllocated += parseFloat($(this).val()) || 0;
+            });
+
+            const gaaBudget = parseFloat($('#gaa_budget').val()) || 0;
+
+            if (totalAllocated > gaaBudget) {
+                Swal.fire("Allocation Exceeded", "The total allocation cannot exceed the GAA budget.", "error");
                 return;
             }
 
@@ -527,13 +543,11 @@
                 success: function(response) {
                     if (response.message === 'success') {
                         Swal.fire("Success", "Budget allocation updated successfully.", "success");
-
-                        // Disable the input field again
                         $(`#budget_${projectId}`).prop('readonly', true);
-
-                        // Show the Edit button and hide the Save button
                         $(`#editBtn_${projectId}`).removeClass('d-none');
                         $(`#saveBtn_${projectId}`).addClass('d-none');
+                        updateUnallocatedFund();
+                        cancelEdit(projectId, budget);
                     } else {
                         Swal.fire("Error", response.message, "error");
                     }
@@ -542,6 +556,19 @@
                     Swal.fire("Error", xhr.responseJSON.message, "error");
                 }
             });
+        }
+
+        function updateUnallocatedFund() {
+            let totalAllocated = 0;
+            $('#projectListBody input[type="number"]').each(function() {
+                totalAllocated += parseFloat($(this).val()) || 0;
+            });
+
+            const gaaBudget = parseFloat($('#gaa_budget').val()) || 0;
+            const unallocatedFund = gaaBudget - totalAllocated;
+
+            $('#unallocated_fund').val(unallocatedFund.toFixed(2));
+
         }
 
         function loadGaaFromProject() {
