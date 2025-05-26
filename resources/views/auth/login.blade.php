@@ -5,7 +5,7 @@
     <h2 style="font-family: Verdana, sans-serif;">Single Sign-In</h2>
 </div>
 <div class="row">
-    <form class="form-group" method="POST" action="{{URL::to('')}}/ssi/login">
+    <form class="form-group" method="POST" action="{{URL::to('login')}}">
         @csrf
         <!-- Username Input with Error Message -->
         <div class="row mb-3">
