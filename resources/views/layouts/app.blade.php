@@ -6,12 +6,12 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>
-        {{ request()->is('login')? 'SSI - Login': 'SSI - ' .Str::title(collect(explode('/', request()->path()))->take(2)->implode(' ')) }}
+        Budget Tracking
     </title>
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="{{ asset('images/3x3_new.png') }}" rel="icon">
-    <link href="{{ asset('assets/plugins/sweetalert2/sweetalert2.min.css') }}" rel="stylesheet">
 
     <style>
         body {
@@ -28,7 +28,6 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-image: url("{{ asset('images/ssi-bg.png') }}");
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
@@ -151,7 +150,7 @@
     <div class="container-fluid">
         <div class="row main-content text-center">
             <div class="col-md-4 text-center company__info">
-                <center><img src="{{ asset('images/psrti_logo.png') }}" alt="PSRTI Logo" width="70%"></center>
+                <center><img src="{{ asset('psrti_logo_new.png') }}" alt="PSRTI Logo" width="70%"></center>
             </div>
             <div class="col-md-8 col-xs-12 col-sm-12 login_form">
                 <div class="container-fluid"><br>
@@ -164,8 +163,10 @@
     </div>
     <!-- Footer -->
     <div class="container-fluid text-center footer" style="font-family: 'Courier New', monospace;">
-        v2.1.0
+        v1.0
     </div>
 </body>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
 
 </html>
