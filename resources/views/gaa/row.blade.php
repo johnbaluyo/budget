@@ -18,11 +18,22 @@
     @if (Request::is('gaa*'))
         {{-- gaa --}}
         <td>
+            @php $budget_total = 0; @endphp
+            @foreach ($category['expenses'] as $expense)
+                @if (!is_null($expense['realign_from']))
+                    @php $budget_total += $expense['amount']; @endphp
+                    @php $row_total += $expense['amount']; @endphp
+                @endif
+                @if (!is_null($expense['realign_to']))
+                    @php $budget_total -= $expense['amount']; @endphp
+                    @php $row_total -= $expense['amount']; @endphp
+                @endif
+            @endforeach
             {{-- // budget --}}
 
             @php $row_total += $category['allocation']; @endphp
-            @if ($category['allocation'] > 0)
-                {{ number_format($category['allocation'], 2) }}
+            @if ($category['allocation'] + $budget_total > 0)
+                {{ number_format($category['allocation'] + $budget_total, 2) }}
             @endif
         </td>
         <td>
@@ -54,10 +65,19 @@
         {{-- projects --}}
         <td>
             {{-- budget --}}
+            @php $budget_total = 0; @endphp
+            @foreach ($category['expenses'] as $expense)
+                @if (!is_null($expense['realign_from']))
+                    @php $budget_total += $expense['amount']; @endphp
+                @endif
+                @if (!is_null($expense['realign_to']))
+                    @php $budget_total -= $expense['amount']; @endphp
+                @endif
+            @endforeach
             @php $gaa_project_budget = App\GaaProject::where('gaa_id', $category['gaa_id'])->where('project_id', $project->id)->pluck('budget')->first(); @endphp
             @php $row_total += $gaa_project_budget; @endphp
-            @if ($gaa_project_budget > 0)
-                {{ number_format($gaa_project_budget, 2) }}
+            @if ($gaa_project_budget + $budget_total > 0)
+                {{ number_format($gaa_project_budget + $budget_total, 2) }}
             @endif
         </td>
         <td>
