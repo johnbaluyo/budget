@@ -45,7 +45,7 @@ Route::post('/approvedbudget/store', 'ApprovedBudgetController@store');
 Route::post('/approvedbudget/update', 'ApprovedBudgetController@update');
 Route::post('/approvedbudget/delete', 'ApprovedBudgetController@delete');
 
-Route::get('/gaa', 'GAAController@index');
+Route::get('/gaa/{year}', 'GAAController@index');
 Route::post('/gaa/delete', 'GAAController@delete');
 Route::post('/gaa/store', 'GAAController@store');
 Route::post('/gaa/edit', 'GAAController@edit');
@@ -59,3 +59,5 @@ Route::post('/project/loadTracking', 'GAAController@loadTracking');
 Route::post('/project/updateTracking', 'GAAController@updateTracking');
 Route::post('/project/getGaaFromProject', 'GAAController@getGaaFromProject');
 Route::post('/project/moveToOtherProject', 'GAAController@moveToOtherProject');
+
+Route::get('/projects/{year}', 'ProjectController@index');

@@ -23,4 +23,9 @@ class Project extends Model
     {
         return $this->hasMany(GAAProject::class, 'project_id', 'id');
     }
+
+    public function division()
+    {
+        return $this->belongsTo(Division::class, 'div_id', 'id');
+    }
 }

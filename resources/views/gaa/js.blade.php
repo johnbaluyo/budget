@@ -89,6 +89,9 @@
                             // Show the Edit button and hide the Save button
                             $('#editBudgetButton').removeClass('d-none');
                             $('#saveBudgetButton').addClass('d-none');
+
+                            // Refresh unallocated fund
+                            updateUnallocatedFund();
                         } else {
                             Swal.fire("Error", response.message, "error");
                         }
@@ -444,7 +447,7 @@
             $('#remarks').val('');
         }
 
-        function manageBudget(gaa_id,item_of_expenditure) {
+        function manageBudget(gaa_id, item_of_expenditure) {
             var formData = new FormData();
             formData.append('gaa_id', gaa_id);
             $.ajax({
