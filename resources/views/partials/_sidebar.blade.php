@@ -1,7 +1,6 @@
 <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <a class="brand-link text-decoration-none" href="index3.html">
-        <img class="brand-image img-circle elevation-3" src="{{ asset('psrti_logo_new.png') }}" alt="PSRTI Logo"
-            style="opacity: .8">
+        <img class="brand-image img-circle elevation-3" src="{{ asset('psrti_logo_new.png') }}" alt="PSRTI Logo" style="opacity: .8">
         <span class="brand-text font-weight-light">Budget Tracking</span>
     </a>
 
@@ -18,12 +17,11 @@
 
         <!-- Sidebar Menu -->
         <nav class="mt-2">
-            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" data-accordion="false"
-                role="menu">
+            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" data-accordion="false" role="menu">
                 <li class="nav-item">
-                    <a class="nav-link {{ Request::is('approvedbudget') ? 'active' : '' }}"
-                        href="{{ URL::to('/approvedbudget') }}">
-                        <i class="nav-icon fas fa-hand-holding-usd"></i>
+                    <a class="nav-link {{ Request::is('approvedbudget') ? 'active' : '' }}" href="{{ URL::to('/approvedbudget') }}">
+                        <i class="nav-icon fas fa">₱</i>
+                        {{-- <i class="nav-icon fas fa-hand-holding-usd"></i> --}}
                         <p>
                             Approved Budget
                         </p>
@@ -47,8 +45,7 @@
                             <select class="form-select w-100" id="year" name="year"
                                 onchange="document.getElementById('yearFilterForm').submit();">
                                 @foreach ($years as $year)
-                                    <option value="{{ $year }}"
-                                        {{ $selectedYear == $year ? 'selected' : '' }}>
+                                    <option value="{{ $year }}" {{ $selectedYear == $year ? 'selected' : '' }}>
                                         {{ $year }}
                                     </option>
                                 @endforeach
@@ -57,10 +54,20 @@
                     </div>
                 </div><br>
                 <li class="nav-item">
-                    <a class="nav-link {{ Request::is('gaa') ? 'active' : '' }}" href="{{ URL::to('/gaa') }}">
+                    <a class="nav-link {{ Request::is('gaa/*') ? 'active' : '' }}" href="{{ URL::to('/gaa') }}/{{ $selectedYear }}">
+                        {{-- <i class="nav-icon fas fa-hand-holding-usd"></i> --}}
                         <i class="nav-icon fas fa-hand-holding-usd"></i>
                         <p>
                             GAA
+                        </p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ Request::is('projects/*') ? 'active' : '' }}" href="{{ URL::to('/projects') }}/{{ $selectedYear }}">
+                        {{-- <i class="nav-icon fas fa-project-diagram"></i> --}}
+                        <i class="nav-icon fas fa-project-diagram"></i>
+                        <p>
+                            PROJECTS
                         </p>
                     </a>
                 </li>
@@ -78,7 +85,7 @@
                     <li class="nav-item">
                         <a class="nav-link {{ Request::is('project/' . $project->id) ? 'active' : '' }}"
                             href="{{ route('project', ['id' => $project->id, 'year' => request('year', $selectedYear ?? '')]) }}">
-                            <i class="nav-icon fas fa-project-diagram"></i>
+                            <i class="nav-icon fas fa-caret-right"></i>
                             <p>{{ $project->project_name }}</p>
                         </a>
                     </li>
@@ -87,8 +94,7 @@
         </nav>
         <hr class="bg-light">
         <nav class="mt-2">
-            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" data-accordion="false"
-                role="menu">
+            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" data-accordion="false" role="menu">
                 <li class="nav-item">
                     <a class="nav-link" href="{{ route('logout') }}"
                         onclick="event.preventDefault(); document.getElementById('logout-form').submit();">

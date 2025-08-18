@@ -18,10 +18,9 @@ class GAAController extends Controller
         $this->middleware('auth');
     }
 
-    public function index(Request $request)
+    public function index(Request $request, $year)
     {
-        $currentYear = date('Y');
-        $selectedYear = $request->get('year', $currentYear);
+        $selectedYear = $request->get('year', $year);
         $divisions = Division::all();
         $approved_budget = ApprovedBudget::with([
             'gaa.gaaProjects.expenses'

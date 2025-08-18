@@ -63,15 +63,20 @@
         </td>
     @else
         {{-- projects --}}
+        @php $ids = App\GaaProject::where('project_id', $project->id)->pluck('id')->toArray(); @endphp
         <td>
             {{-- budget --}}
             @php $budget_total = 0; @endphp
             @foreach ($category['expenses'] as $expense)
                 @if (!is_null($expense['realign_from']))
-                    @php $budget_total += $expense['amount']; @endphp
+                    @if (in_array($expense['gaa_project_id'], $ids))
+                        @php $budget_total += $expense['amount']; @endphp
+                    @endif
                 @endif
                 @if (!is_null($expense['realign_to']))
-                    @php $budget_total -= $expense['amount']; @endphp
+                    @if (in_array($expense['gaa_project_id'], $ids))
+                        @php $budget_total -= $expense['amount']; @endphp
+                    @endif
                 @endif
             @endforeach
             @php $gaa_project_budget = App\GaaProject::where('gaa_id', $category['gaa_id'])->where('project_id', $project->id)->pluck('budget')->first(); @endphp
@@ -86,11 +91,13 @@
                 {{-- Loop through all expenses where realign_in is not empty --}}
                 @foreach ($category['expenses'] as $expense)
                     @if (!is_null($expense['realign_from']))
-                        <li class="hover-text" data-id="{{ $expense['id'] }}" data-activity="{{ $expense['date'] }}"
-                            data-remarks="{{ $expense['remarks'] }}" data-type="{{ $expense['type'] }}">
-                            {{ number_format($expense['amount'], 2) }}
-                            @php $row_total += $expense['amount']; @endphp
-                        </li>
+                        @if (in_array($expense['gaa_project_id'], $ids))
+                            <li class="hover-text" data-id="{{ $expense['id'] }}" data-activity="{{ $expense['date'] }}"
+                                data-remarks="{{ $expense['remarks'] }}" data-type="{{ $expense['type'] }}">
+                                {{ number_format($expense['amount'], 2) }}
+                                @php $row_total += $expense['amount']; @endphp
+                            </li>
+                        @endif
                     @endif
                 @endforeach
             </ul>
@@ -101,11 +108,13 @@
                 {{-- Loop through all expenses where realign_out is not empty --}}
                 @foreach ($category['expenses'] as $expense)
                     @if (!is_null($expense['realign_to']))
-                        <li class="hover-text" data-id="{{ $expense['id'] }}" data-activity="{{ $expense['date'] }}"
-                            data-remarks="{{ $expense['remarks'] }}" data-type="{{ $expense['type'] }}">
-                            {{ number_format($expense['amount'], 2) }}
-                            @php $row_total -= $expense['amount']; @endphp
-                        </li>
+                        @if (in_array($expense['gaa_project_id'], $ids))
+                            <li class="hover-text" data-id="{{ $expense['id'] }}" data-activity="{{ $expense['date'] }}"
+                                data-remarks="{{ $expense['remarks'] }}" data-type="{{ $expense['type'] }}">
+                                {{ number_format($expense['amount'], 2) }}
+                                @php $row_total -= $expense['amount']; @endphp
+                            </li>
+                        @endif
                     @endif
                 @endforeach
             </ul>
