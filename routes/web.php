@@ -46,6 +46,7 @@ Route::post('/approvedbudget/update', 'ApprovedBudgetController@update');
 Route::post('/approvedbudget/delete', 'ApprovedBudgetController@delete');
 
 Route::redirect('/gaa', 'approvedbudget', 301);
+Route::redirect('/projects', 'approvedbudget', 301);
 Route::get('/gaa/{year}', 'GAAController@index');
 Route::post('/gaa/delete', 'GAAController@delete');
 Route::post('/gaa/store', 'GAAController@store');
