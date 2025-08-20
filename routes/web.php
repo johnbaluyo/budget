@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::redirect('/', 'gaa/'.date('Y'), 301);
+Route::redirect('/', 'gaa/' . date('Y'), 301);
 
 Auth::routes();
 
@@ -45,6 +45,7 @@ Route::post('/approvedbudget/store', 'ApprovedBudgetController@store');
 Route::post('/approvedbudget/update', 'ApprovedBudgetController@update');
 Route::post('/approvedbudget/delete', 'ApprovedBudgetController@delete');
 
+Route::redirect('/gaa', 'approvedbudget', 301);
 Route::get('/gaa/{year}', 'GAAController@index');
 Route::post('/gaa/delete', 'GAAController@delete');
 Route::post('/gaa/store', 'GAAController@store');
