@@ -7,6 +7,7 @@ use App\GAA;
 use App\GAAProject;
 use App\Project;
 use Illuminate\Http\Request;
+use App\DeleteLog;
 
 class ApprovedBudgetController extends Controller
 {
@@ -38,15 +39,15 @@ class ApprovedBudgetController extends Controller
 
         $gaa_ids = collect($default_categories)->map(function ($category) use ($insert) {
             $parentId = $category['parent_category']
-            ? GAA::where('item_of_expenditure', $category['parent_category'])->orderBy('id', 'desc')->value('id')
-            : null;
+                ? GAA::where('item_of_expenditure', $category['parent_category'])->orderBy('id', 'desc')->value('id')
+                : null;
 
             $gaa = GAA::create([
-            'object_type' => $category['object_type'],
-            'item_of_expenditure' => $category['category_name'],
-            'parent_id' => $parentId,
-            'fund_cluster' => 'RAF-01',
-            'approved_budget_id' => $insert->id
+                'object_type' => $category['object_type'],
+                'item_of_expenditure' => $category['category_name'],
+                'parent_id' => $parentId,
+                'fund_cluster' => 'RAF-01',
+                'approved_budget_id' => $insert->id
             ]);
 
             return $gaa->id;
@@ -54,8 +55,8 @@ class ApprovedBudgetController extends Controller
 
         $gaa_ids->each(function ($gaa_id) use ($project) {
             GAAProject::create([
-            'project_id' => $project->id,
-            'gaa_id' => $gaa_id
+                'project_id' => $project->id,
+                'gaa_id' => $gaa_id
             ]);
         });
 
@@ -85,6 +86,11 @@ class ApprovedBudgetController extends Controller
     public function delete(Request $request)
     {
         $delete = ApprovedBudget::find($request->approvedbudget_id);
+        DeleteLog::delete_log(
+            'approved_budgets',
+            auth()->user()->id,
+            json_encode($delete)
+        );
         $delete->delete();
 
         return redirect()->back()

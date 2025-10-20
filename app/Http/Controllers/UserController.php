@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\DeleteLog;
 use App\Division;
 use App\Position;
 use App\User;
@@ -58,10 +59,15 @@ class UserController extends Controller
             ->with('message', 'Record Saved.')
             ->with('color', 'success');
     }
-    
+
     public function delete(Request $request)
     {
         $delete = User::find($request->user_id);
+        DeleteLog::delete_log(
+            'users',
+            auth()->user()->id,
+            json_encode($delete)
+        );
         $delete->delete();
 
         return redirect()->back()

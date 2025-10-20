@@ -20,7 +20,7 @@ class UsersTableSeeder extends Seeder
                 'email' => 'fina.arroyo@psrti.gov.ph',
                 'position_id' => '3',
                 'division_id' => '1',
-                'user_type' => '0',
+                'user_type' => '4',
                 'password' => Hash::make('12345678'),
                 'email_verified_at' => now(),
                 'remember_token' => Str::random(10),
@@ -29,17 +29,17 @@ class UsersTableSeeder extends Seeder
             ],
             [
                 'name' => 'Admin John',
-                'email' => 'janny@admin.com',
+                'email' => 'john.baluyo@psrti.gov.ph',
                 'position_id' => '2',
                 'division_id' => '1',
-                'user_type' => '0',
+                'user_type' => '4',
                 'password' => Hash::make('qweqweqwe'),
                 'email_verified_at' => now(),
                 'remember_token' => Str::random(10),
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
-          
+
         ]);
     }
 }
