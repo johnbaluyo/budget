@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\ApprovedBudget;
+use App\DeleteLog;
 use App\Division;
 use App\GAA;
 use App\GAAProject;
@@ -222,6 +223,11 @@ class GAAController extends Controller
     {
         try {
             $model = $request->type == 1 ? GAA::find($request->gaa_id) : GAAProject::where('project_id', $request->project_id)->where('gaa_id', $request->gaa_id);
+            DeleteLog::delete_log(
+                $request->type == 1 ? 'gaa' : 'gaa_projects',
+                auth()->user()->id,
+                json_encode($model)
+            );
             $model->delete();
             return response()->json('success');
         } catch (\Exception $e) {
@@ -257,7 +263,18 @@ class GAAController extends Controller
             $model->remarks = $request->remarks;
             $model->parent_id = $request->parent_id;
             $model->approved_budget_id = $approved_budget_id;
-            $model->save();
+
+            if (isset($request->project)) {
+                $model->budget_allocation = $request->allocation;
+                $model->save();
+                $gaa_project = new GAAProject();
+                $gaa_project->project_id = $request->project;
+                $gaa_project->gaa_id = $model->id;
+                $gaa_project->budget = $request->allocation;
+                $gaa_project->save();
+            } else {
+                $model->save();
+            }
             return redirect()->back()->with([
                 'message' => 'Record saved successfully.',
                 'color' => 'success'

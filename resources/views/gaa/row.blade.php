@@ -144,9 +144,7 @@
     <td class="d-flex justify-content-end">
 
         @if (Request::is('project*') && $row_total > 0)
-            @if (empty($category['children']) || $category['allocation'] > 0)
                 <button class="btn btn-sm btn-success" onclick="showTracking(`{{ $category['gaa_id'] }}`)">Tracking</button>&nbsp;|&nbsp;
-            @endif
         @endif
         <div class="btn-group" role="group">
             <button class="btn btn-sm btn-outline-secondary rounded-circle" id="btnGroupDrop1" data-bs-toggle="dropdown">

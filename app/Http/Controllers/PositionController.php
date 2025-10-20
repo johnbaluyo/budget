@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\DeleteLog;
 use App\Position;
 use Illuminate\Http\Request;
 
@@ -26,7 +27,7 @@ class PositionController extends Controller
             ->with('message', 'Record Saved.')
             ->with('color', 'success');
     }
-    
+
     public function update(Request $request)
     {
         $update = Position::find($request->position_id);
@@ -44,6 +45,11 @@ class PositionController extends Controller
     public function delete(Request $request)
     {
         $delete = Position::find($request->position_id);
+        DeleteLog::delete_log(
+            'positions',
+            auth()->user()->id,
+            json_encode($delete)
+        );
         $delete->delete();
 
         return redirect()->back()

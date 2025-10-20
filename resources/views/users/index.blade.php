@@ -140,7 +140,6 @@
                             <label class="form-label">User Type
                             </label>
                             <select type="text" class="form-control" name="user_type">
-                                <option value="">--Select User Type--</option>
                                 <option value="1"> Staff</option>
                                 <option value="2"> Division Chief </option>
                                 <option value="3"> Executive Director</option>

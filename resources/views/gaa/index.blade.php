@@ -35,10 +35,11 @@
             <div class="row">
                 <div class="col-md-3">
                     <div class="info-box" style="background-color: #f3f5cb; height: 89px">
-                        <span class="info-box-icon bg-success"><i class="fas fa-dollar-sign"></i></span>
+                        <span class="info-box-icon bg-success">₱</span>
                         <div class="info-box-content">
                             <span class="info-box-text">{{ $selectedYear }} Budget</span>
-                            <span class="info-box-number">{{ number_format($approved_budget->grand_total_amount, 2) }}</span>
+                            <span
+                                class="info-box-number">{{ number_format($approved_budget->grand_total_amount, 2) }}</span>
                         </div>
                     </div>
                 </div>
@@ -57,8 +58,9 @@
                                 {{ number_format($allocated_budget, 2) }}
                                 <span class="float-right">{{ number_format($allocated_percentage, 2) }}%</span>
                                 <div class="progress">
-                                    <div class="progress-bar bg-ssi" role="progressbar" aria-valuenow="{{ $allocated_percentage }}" aria-valuemin="0"
-                                        aria-valuemax="100" style="width: {{ $allocated_percentage }}%"></div>
+                                    <div class="progress-bar bg-ssi" role="progressbar"
+                                        aria-valuenow="{{ $allocated_percentage }}" aria-valuemin="0" aria-valuemax="100"
+                                        style="width: {{ $allocated_percentage }}%"></div>
                                 </div>
                             </span>
                         </div>
@@ -81,8 +83,8 @@
                                     <span class="float-right">{{ number_format($percentage, 2) }}%</span>
                                 </span>
                                 <div class="progress">
-                                    <div class="progress-bar bg-ssi" role="progressbar" aria-valuenow="{{ $percentage }}" aria-valuemin="0"
-                                        aria-valuemax="100" style="width: {{ $percentage }}%"></div>
+                                    <div class="progress-bar bg-ssi" role="progressbar" aria-valuenow="{{ $percentage }}"
+                                        aria-valuemin="0" aria-valuemax="100" style="width: {{ $percentage }}%"></div>
                                 </div>
                             </span>
                         </div>
@@ -93,7 +95,8 @@
                         <span class="info-box-icon bg-warning"><i class="fas fa-balance-scale"></i></span>
                         <div class="info-box-content">
                             <span class="info-box-text">Remaining Balance</span>
-                            <span class="info-box-number">{{ number_format($approved_budget->remaining_balance, 2) }}</span>
+                            <span
+                                class="info-box-number">{{ number_format($approved_budget->remaining_balance, 2) }}</span>
                         </div>
                     </div>
                 </div>
@@ -161,8 +164,8 @@
 
     {{-- add item to gaa --}}
 
-    <div class="modal fade" id="GAAitemModal" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="GAAitemLabel" aria-hidden="true"
-        tabindex="-1">
+    <div class="modal fade" id="GAAitemModal" data-bs-backdrop="static" data-bs-keyboard="false"
+        aria-labelledby="GAAitemLabel" aria-hidden="true" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <form action="{{ URL::to('/gaa/store') }}" method="post">
@@ -178,7 +181,8 @@
                         <div class="row form-group">
                             <div class="col-sm">
                                 <label>Item of Expenditure:</label>
-                                <input class="form-control" id="item_of_expenditure" name="item_of_expenditure" type="text" required>
+                                <input class="form-control" id="item_of_expenditure" name="item_of_expenditure"
+                                    type="text" required>
                             </div>
                         </div>
                         <div class="row form-group">
@@ -194,8 +198,8 @@
                             </div>
                             <div class="col-sm">
                                 <label>Fund Cluster</label>
-                                <input class="form-control" name="fund_cluster" type="text" value="RAF-01" style="flex-grow: 0.5;"
-                                    placeholder="Fund Cluster" readonly>
+                                <input class="form-control" name="fund_cluster" type="text" value="RAF-01"
+                                    style="flex-grow: 0.5;" placeholder="Fund Cluster" readonly>
                             </div>
                             <div class="col-sm">
                                 <label>Object Type</label>
@@ -223,8 +227,8 @@
 
     {{-- add item to project modal --}}
 
-    <div class="modal fade" id="projectModal" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="projectModalLabel"
-        aria-hidden="true" tabindex="-1">
+    <div class="modal fade" id="projectModal" data-bs-backdrop="static" data-bs-keyboard="false"
+        aria-labelledby="projectModalLabel" aria-hidden="true" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <form action="{{ URL::to('/project/saveItemToProject') }}" method="post">
@@ -239,18 +243,23 @@
                         <div class="row form-group">
                             <div class="col-sm">
                                 <label>Available Fund:</label>
-                                <input class="form-control" id="available_fund" name="available_fund" type="text" readonly>
+                                <input class="form-control" id="available_fund" name="available_fund" type="text"
+                                    readonly>
                             </div>
                         </div>
                         <div class="row form-group">
                             <div class="col-sm">
                                 <label>Project Name:</label>
-                                <input class="form-control" id="project_name" name="project_name" type="text" list="projectList" required>
+                                <input class="form-control" id="project_name" name="project_name" type="text"
+                                    list="projectList" required>
                                 <datalist id="projectList">
                                     @php
                                         $projects = DB::table('projects')
                                             ->where('approved_budget_id', function ($query) use ($selectedYear) {
-                                                $query->select('id')->from('approved_budget')->where('year', $selectedYear);
+                                                $query
+                                                    ->select('id')
+                                                    ->from('approved_budget')
+                                                    ->where('year', $selectedYear);
                                             })
                                             ->get();
                                     @endphp
@@ -277,8 +286,8 @@
 
     {{-- manage budget/fund modal --}}
 
-    <div class="modal fade" id="budgetModal" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="budgetModalLabel"
-        aria-hidden="true" tabindex="-1">
+    <div class="modal fade" id="budgetModal" data-bs-backdrop="static" data-bs-keyboard="false"
+        aria-labelledby="budgetModalLabel" aria-hidden="true" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
@@ -292,7 +301,8 @@
                             <form id="gaa_budget_form">
                                 <div class="input-group mb-3">
                                     <input id="fund_gaa_id" name="fund_gaa_id" type="hidden">
-                                    <input class="form-control" id="gaa_budget" name="gaa_budget" type="number" readonly>
+                                    <input class="form-control" id="gaa_budget" name="gaa_budget" type="number"
+                                        readonly>
                                     <button class="btn btn-primary" id="editBudgetButton" type="button">
                                         <span class="fa fa-edit"></span> Edit
                                     </button>
@@ -306,7 +316,8 @@
                     <div class="row form-group">
                         <div class="col-sm">
                             <label>Unallocated fund:</label>
-                            <input class="form-control" id="unallocated_fund" name="unallocated_fund" type="number" readonly>
+                            <input class="form-control" id="unallocated_fund" name="unallocated_fund" type="number"
+                                readonly>
                         </div>
                     </div>
                     <hr>
