@@ -28,4 +28,9 @@ class Project extends Model
     {
         return $this->belongsTo(Division::class, 'div_id', 'id');
     }
+
+    public function monthlyBudgets()
+    {
+        return $this->hasMany(ProjectMonthlyBudget::class, 'project_id', 'id');
+    }
 }
