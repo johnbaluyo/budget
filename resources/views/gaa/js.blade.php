@@ -481,8 +481,6 @@
                                         <button class="btn btn-primary btn-sm" id="editBtn_${item.project.id}" onclick="enableEdit(${item.project.id})">Edit</button>
                                         <button class="btn btn-danger btn-sm d-none" id="cancelBtn_${item.project.id}" onclick="cancelEdit(${item.project.id}, ${item.budget})">Cancel</button>
                                         <button class="btn btn-success btn-sm d-none" id="saveBtn_${item.project.id}" onclick="saveProjectAllocation(${item.project.id}, ${gaa_id})">Save</button>
-                                        <input type="text" value="project_ ${item.project.id}" >
-                                        <input type="text" value="gaa_ ${gaa_id}" >
                                     </td>
                                 </tr>`;
                             $("#projectListBody").append(row);
