@@ -75,9 +75,9 @@
                     <a class="nav-link {{ Request::is('projects/*') ? 'active' : '' }}"
                         href="{{ URL::to('/projects') }}/{{ $selectedYear }}">
                         {{-- <i class="nav-icon fas fa-project-diagram"></i> --}}
-                        <i class="nav-icon fas fa-project-diagram"></i>
+                        <i class="nav-icon fas fa-calendar-alt"></i>
                         <p>
-                            PROJECTS
+                            BED
                         </p>
                     </a>
                 </li>

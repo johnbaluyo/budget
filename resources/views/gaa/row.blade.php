@@ -45,8 +45,8 @@
             {{-- expenses --}}
             @foreach ($category['expenses'] as $expense)
                 @if (is_null($expense['realign_from']) && is_null($expense['realign_to']))
-                    <li class="hover-text" data-id="{{ $expense['id'] }}" data-activity="{{ $expense['date'] }}" data-remarks="{{ $expense['remarks'] }}"
-                        data-type="{{ $expense['type'] }}">
+                    <li class="hover-text" data-id="{{ $expense['id'] }}" data-activity="{{ $expense['date'] }}"
+                        data-remarks="{{ $expense['remarks'] }}" data-type="{{ $expense['type'] }}">
                         {{ $expense['type'] == 'IN' ? '+' : '-' }} {{ number_format($expense['amount'], 2) }}
                         @php
                             $row_total += $expense['type'] == 'IN' ? $expense['amount'] : -$expense['amount'];
@@ -93,7 +93,8 @@
                     @if (!is_null($expense['realign_from']))
                         @if (in_array($expense['gaa_project_id'], $ids))
                             <li class="hover-text" data-id="{{ $expense['id'] }}" data-activity="{{ $expense['date'] }}"
-                                data-remarks="{{ $expense['remarks'] }}" data-type="{{ $expense['type'] }}">
+                                data-remarks="{{ $expense['realign_from'] ?? $expense['realign_to'] }}"
+                                data-type="{{ $expense['type'] }}">
                                 {{ number_format($expense['amount'], 2) }}
                                 @php $row_total += $expense['amount']; @endphp
                             </li>
@@ -109,8 +110,10 @@
                 @foreach ($category['expenses'] as $expense)
                     @if (!is_null($expense['realign_to']))
                         @if (in_array($expense['gaa_project_id'], $ids))
-                            <li class="hover-text" data-id="{{ $expense['id'] }}" data-activity="{{ $expense['date'] }}"
-                                data-remarks="{{ $expense['remarks'] }}" data-type="{{ $expense['type'] }}">
+                            <li class="hover-text" data-id="{{ $expense['id'] }}"
+                                data-activity="{{ $expense['date'] }}"
+                                data-remarks="{{ $expense['remarks'] }}{{ $expense['realign_from'] ?? $expense['realign_to'] }}"
+                                data-type="{{ $expense['type'] }}">
                                 {{ number_format($expense['amount'], 2) }}
                                 @php $row_total -= $expense['amount']; @endphp
                             </li>
@@ -144,10 +147,12 @@
     <td class="d-flex justify-content-end">
 
         @if (Request::is('project*') && $row_total > 0)
-                <button class="btn btn-sm btn-success" onclick="showTracking(`{{ $category['gaa_id'] }}`)">Tracking</button>&nbsp;|&nbsp;
+            <button class="btn btn-sm btn-success"
+                onclick="showTracking(`{{ $category['gaa_id'] }}`)">Tracking</button>&nbsp;|&nbsp;
         @endif
         <div class="btn-group" role="group">
-            <button class="btn btn-sm btn-outline-secondary rounded-circle" id="btnGroupDrop1" data-bs-toggle="dropdown">
+            <button class="btn btn-sm btn-outline-secondary rounded-circle" id="btnGroupDrop1"
+                data-bs-toggle="dropdown">
                 &nbsp;<span class="fas fa-ellipsis-v"></span>&nbsp;
             </button>
             <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
@@ -164,13 +169,15 @@
                         </a>
                     </li>
                     <li>
-                        <a class="dropdown-item" onclick="manageBudget({{ $category['gaa_id'] }},`{{ $category['item_of_expenditure'] }}`)">
+                        <a class="dropdown-item"
+                            onclick="manageBudget({{ $category['gaa_id'] }},`{{ $category['item_of_expenditure'] }}`)">
                             <i class="fa fa-hand-holding-usd text-success"></i> Manage Budget / Allocation
                         </a>
                     </li>
                 @else
                     <li>
-                        <a class="dropdown-item" onclick="moveToOtherProject(`{{ $category['gaa_id'] }}`,`{{ $project->id }}`)">
+                        <a class="dropdown-item"
+                            onclick="moveToOtherProject(`{{ $category['gaa_id'] }}`,`{{ $project->id }}`)">
                             <i class="fa fa-exchange-alt text-primary"></i>Move Item To Other Project
                             {{-- to do --}}
                         </a>
@@ -184,8 +191,10 @@
                 </li>
                 @if (Request::is('project*') || Request::is('gaa*'))
                     <li>
-                        <a class="dropdown-item" onclick="_delete({{ $category['gaa_id'] }}, {{ Request::is('project*') ? 2 : 1 }})">
-                            <i class="fa fa-trash-alt text-red"></i> {{ Request::is('project*') ? 'item from Project' : 'Delete item from GAA' }}
+                        <a class="dropdown-item"
+                            onclick="_delete({{ $category['gaa_id'] }}, {{ Request::is('project*') ? 2 : 1 }})">
+                            <i class="fa fa-trash-alt text-red"></i>
+                            {{ Request::is('project*') ? 'item from Project' : 'Delete item from GAA' }}
                         </a>
                     </li>
                 @endif
