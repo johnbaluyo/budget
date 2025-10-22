@@ -83,7 +83,16 @@ class GAAController extends Controller
                     // Filter by project_id if provided (for project view)
                     if ($projectId === null || $project->project_id == $projectId) {
                         foreach ($project->expenses as $expense) {
-                            $expenses[] = $expense;
+                            $expenses[] = [
+                                'id' => $expense->id,
+                                'type' => $expense->type,
+                                'amount' => $expense->amount,
+                                'date' => $expense->date,
+                                'remarks' => $expense->remarks,
+                                'gaa_project_id' => $expense->gaa_project_id,
+                                'realign_from' => $expense->realignFrom ? 'realigned from: <b>(' . $expense->realignFrom->project->project_name . ') ' . $expense->realignFrom->gaa->item_of_expenditure . '</b><br>' : null,
+                                'realign_to' => $expense->realignTo ? 'realigned to: <b>(' . $expense->realignTo->project->project_name . ') ' . $expense->realignTo->gaa->item_of_expenditure . '</b><br>' : null,
+                            ];
                         }
                     }
                 }
@@ -456,7 +465,7 @@ class GAAController extends Controller
     public function saveProjectAllocation(Request $request)
     {
         try {
-            $gaa_project = GAAProject::find($request->gaa_project_id);
+            $gaa_project = GAAProject::where('gaa_id', $request->gaa_project_id)->where('project_id', $request->project_id)->first();
             $gaa_project->budget = $request->budget;
             $gaa_project->save();
             return response()->json(['message' => 'success']);

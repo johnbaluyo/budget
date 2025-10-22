@@ -46,7 +46,9 @@
                                             <td>{{ number_format($data->total_expenses, 2) }}</td>
                                             <td>{{ number_format($data->total_remaining, 2) }}</td>
                                             <td>
-                                                <button class="btn btn-sm btn-primary" onclick="openBEDModal({{ $data->id }}, '{{ $data->project_name }}', {{ $data->total_budget }})" title="Budget Execution Distribution">
+                                                <button class="btn btn-sm btn-primary"
+                                                    onclick="openBEDModal({{ $data->id }}, '{{ $data->project_name }}', {{ $data->total_budget }})"
+                                                    title="Budget Execution Distribution">
                                                     <i class="fas fa-calendar-alt"></i> BED
                                                 </button>
                                             </td>
@@ -86,7 +88,8 @@
                     <div class="row mb-3">
                         <div class="col-sm-12">
                             <div class="alert alert-info">
-                                <i class="fas fa-info-circle"></i> Allocate the project budget across the 12 months. The total allocation cannot exceed the project's total budget.
+                                <i class="fas fa-info-circle"></i> Allocate the project budget across the 12 months. The
+                                total allocation cannot exceed the project's total budget.
                             </div>
                         </div>
                     </div>
@@ -103,16 +106,29 @@
                                 </thead>
                                 <tbody id="monthly_budget_table">
                                     @php
-                                        $months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+                                        $months = [
+                                            'January',
+                                            'February',
+                                            'March',
+                                            'April',
+                                            'May',
+                                            'June',
+                                            'July',
+                                            'August',
+                                            'September',
+                                            'October',
+                                            'November',
+                                            'December',
+                                        ];
                                     @endphp
-                                    @foreach($months as $index => $month)
+                                    @foreach ($months as $index => $month)
                                         <tr>
                                             <td>{{ $month }}</td>
                                             <td>
-                                                <input type="number" class="form-control form-control-sm monthly-budget-input" 
-                                                       id="budget_month_{{ $index + 1 }}" 
-                                                       data-month="{{ $index + 1 }}"
-                                                       min="0" step="0.01" value="0">
+                                                <input type="number"
+                                                    class="form-control form-control-sm monthly-budget-input"
+                                                    id="budget_month_{{ $index + 1 }}" data-month="{{ $index + 1 }}"
+                                                    min="0" step="0.01" value="0">
                                             </td>
                                         </tr>
                                     @endforeach
@@ -143,108 +159,120 @@
 @endsection
 
 @section('js')
-<script>
-    let currentProjectBudget = 0;
+    <script>
+        let currentProjectBudget = 0;
 
-    function openBEDModal(projectId, projectName, totalBudget) {
-        currentProjectBudget = totalBudget;
-        
-        $('#bed_project_id').val(projectId);
-        $('#bed_project_name').text(projectName);
-        $('#bed_total_budget').text(parseFloat(totalBudget).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
-        
-        // Load existing monthly budgets
-        $.ajax({
-            url: '{{ URL::to('/projects/getMonthlyBudget') }}',
-            method: 'POST',
-            data: {
-                _token: '{{ csrf_token() }}',
-                project_id: projectId,
-                year: $('#bed_year').val()
-            },
-            success: function(response) {
-                // Populate the monthly budget inputs
-                response.monthly_budgets.forEach(function(item) {
-                    $('#budget_month_' + item.month).val(parseFloat(item.budget_amount).toFixed(2));
-                });
-                
-                // Calculate totals
-                calculateTotals();
-                
-                // Show the modal
-                $('#bedModal').modal('show');
-            },
-            error: function(xhr) {
-                alert('Error loading monthly budget data: ' + (xhr.responseJSON?.error || 'Unknown error'));
-            }
-        });
-    }
+        function openBEDModal(projectId, projectName, totalBudget) {
+            currentProjectBudget = totalBudget;
 
-    function calculateTotals() {
-        let total = 0;
-        $('.monthly-budget-input').each(function() {
-            let value = parseFloat($(this).val()) || 0;
-            total += value;
-        });
-        
-        $('#total_allocated').text(total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
-        
-        let remaining = currentProjectBudget - total;
-        $('#remaining_budget').text(remaining.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
-        
-        // Change color based on whether we're over budget
-        if (remaining < 0) {
-            $('#remaining_row').addClass('table-danger').removeClass('table-success');
-        } else {
-            $('#remaining_row').addClass('table-success').removeClass('table-danger');
+            $('#bed_project_id').val(projectId);
+            $('#bed_project_name').text(projectName);
+            $('#bed_total_budget').text(parseFloat(totalBudget).toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }));
+
+            // Load existing monthly budgets
+            $.ajax({
+                url: `{{ URL::to('/projects/getMonthlyBudget') }}`,
+                method: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    project_id: projectId,
+                    year: $('#bed_year').val()
+                },
+                success: function(response) {
+                    // Populate the monthly budget inputs
+                    response.monthly_budgets.forEach(function(item) {
+                        $('#budget_month_' + item.month).val(parseFloat(item.budget_amount).toFixed(2));
+                    });
+
+                    // Calculate totals
+                    calculateTotals();
+
+                    // Show the modal
+                    $('#bedModal').modal('show');
+                },
+                error: function(xhr) {
+                    Swal.fire('Error', 'Error loading monthly budget data: ' + (xhr.responseJSON?.error ||
+                        'Unknown error'), 'error');
+                }
+            });
         }
-    }
 
-    function saveMonthlyBudget() {
-        let projectId = $('#bed_project_id').val();
-        let year = $('#bed_year').val();
-        let monthlyBudgets = [];
-        
-        $('.monthly-budget-input').each(function() {
-            let month = $(this).data('month');
-            let amount = parseFloat($(this).val()) || 0;
-            monthlyBudgets.push({
-                month: month,
-                budget_amount: amount
+        function calculateTotals() {
+            let total = 0;
+            $('.monthly-budget-input').each(function() {
+                let value = parseFloat($(this).val()) || 0;
+                total += value;
+            });
+
+            $('#total_allocated').text(total.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }));
+
+            let remaining = currentProjectBudget - total;
+            $('#remaining_budget').text(remaining.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }));
+
+            // Change color based on whether we're over budget
+            if (remaining < 0) {
+                $('#remaining_row').addClass('table-danger').removeClass('table-success');
+            } else {
+                $('#remaining_row').addClass('table-success').removeClass('table-danger');
+            }
+        }
+
+        function saveMonthlyBudget() {
+            let projectId = $('#bed_project_id').val();
+            let year = $('#bed_year').val();
+            let monthlyBudgets = [];
+
+            $('.monthly-budget-input').each(function() {
+                let month = $(this).data('month');
+                let amount = parseFloat($(this).val()) || 0;
+                monthlyBudgets.push({
+                    month: month,
+                    budget_amount: amount
+                });
+            });
+
+            // Validate total doesn't exceed budget
+            let total = monthlyBudgets.reduce((sum, item) => sum + item.budget_amount, 0);
+            if (total > currentProjectBudget) {
+                Swal.fire('Allocation Exceeded', 'Total allocation (' + total.toFixed(2) + ') exceeds project budget (' +
+                    currentProjectBudget.toFixed(2) + ')', 'error');
+                return;
+            }
+
+            $.ajax({
+                url: '{{ URL::to('/projects/saveMonthlyBudget') }}',
+                method: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    project_id: projectId,
+                    year: year,
+                    monthly_budgets: monthlyBudgets
+                },
+                success: function(response) {
+                    Swal.fire('Success', response.message, 'success');
+                    $('#bedModal').modal('hide');
+                },
+                error: function(xhr) {
+                    Swal.fire('Error', 'Error saving monthly budget: ' + (xhr.responseJSON?.error ||
+                        'Unknown error'), 'error');
+                }
+            });
+        }
+
+        // Add event listener to recalculate totals when inputs change
+        $(document).ready(function() {
+            $(document).on('input', '.monthly-budget-input', function() {
+                calculateTotals();
             });
         });
-        
-        // Validate total doesn't exceed budget
-        let total = monthlyBudgets.reduce((sum, item) => sum + item.budget_amount, 0);
-        if (total > currentProjectBudget) {
-            alert('Total allocation (' + total.toFixed(2) + ') exceeds project budget (' + currentProjectBudget.toFixed(2) + ')');
-            return;
-        }
-        
-        $.ajax({
-            url: '{{ URL::to('/projects/saveMonthlyBudget') }}',
-            method: 'POST',
-            data: {
-                _token: '{{ csrf_token() }}',
-                project_id: projectId,
-                year: year,
-                monthly_budgets: monthlyBudgets
-            },
-            success: function(response) {
-                alert(response.message);
-                $('#bedModal').modal('hide');
-            },
-            error: function(xhr) {
-                alert('Error saving monthly budget: ' + (xhr.responseJSON?.error || 'Unknown error'));
-            }
-        });
-    }
-
-    // Add event listener to recalculate totals when inputs change
-    $(document).ready(function() {
-        $(document).on('input', '.monthly-budget-input', function() {
-            calculateTotals();
-        });
-    });
-</script>
+    </script>
 @endsection

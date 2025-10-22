@@ -6,7 +6,7 @@
 
             $('#realign_category_id').on('change', function() {
                 if ($('#realign_category_id').val() === $('#tracking_category_id').val()) {
-                    alert('invalid selection');
+                    Swal.fire('Invalid selection', 'Please choose a different category.', 'warning');
                     $('#realign_category_id').val('');
                 };
             });
@@ -97,7 +97,8 @@
                         }
                     },
                     error: function(xhr) {
-                        Swal.fire("Error", xhr.responseJSON.message || "An error occurred.", "error");
+                        Swal.fire("Error", xhr.responseJSON.message || "An error occurred.",
+                            "error");
                     }
                 });
             });
@@ -153,7 +154,8 @@
                     }
 
                     response.expenses.forEach(function(item) {
-                        let bgColor = item.type === 'IN' ? 'table-success' : item.type === 'OUT' ? 'table-danger' : '';
+                        let bgColor = item.type === 'IN' ? 'table-success' : item.type === 'OUT' ?
+                            'table-danger' : '';
                         var row = `
                         <tr class="${bgColor}">
                             <td>${item.type ?? '-'}</td>
@@ -193,7 +195,8 @@
             formData.append('date', $('#activity_date').val());
             formData.append('remarks', $('#remarks').val());
             formData.append('realign_gaa_id', $('#realignCheckbox').is(':checked') ? $('#realign_gaa_id').val() : null);
-            formData.append('realign_project_id', $('#realignCheckbox').is(':checked') ? $('#realign_project_id').val() : null);
+            formData.append('realign_project_id', $('#realignCheckbox').is(':checked') ? $('#realign_project_id').val() :
+                null);
 
             // Validation check
             if (!formData.get('amount') || formData.get('amount') <= 0) {
@@ -341,7 +344,7 @@
                     if (response.message === 'success') {
                         loadTracking($('#tracking_category_id').val());
                     } else {
-                        alert(response.message);
+                        Swal.fire('Error', response.message, 'error');
                     }
                 },
                 cache: false,
@@ -478,12 +481,15 @@
                                         <button class="btn btn-primary btn-sm" id="editBtn_${item.project.id}" onclick="enableEdit(${item.project.id})">Edit</button>
                                         <button class="btn btn-danger btn-sm d-none" id="cancelBtn_${item.project.id}" onclick="cancelEdit(${item.project.id}, ${item.budget})">Cancel</button>
                                         <button class="btn btn-success btn-sm d-none" id="saveBtn_${item.project.id}" onclick="saveProjectAllocation(${item.project.id}, ${gaa_id})">Save</button>
+                                        <input type="text" value="project_ ${item.project.id}" >
+                                        <input type="text" value="gaa_ ${gaa_id}" >
                                     </td>
                                 </tr>`;
                             $("#projectListBody").append(row);
                         });
                     } else {
-                        $("#projectListBody").append('<tr><td colspan="3" class="text-center">No records found</td></tr>');
+                        $("#projectListBody").append(
+                            '<tr><td colspan="3" class="text-center">No records found</td></tr>');
                     }
 
                     // Calculate unallocated fund
