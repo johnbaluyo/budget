@@ -71,17 +71,20 @@ class GAAController extends Controller
     }
 
 
-    public function buildTree($gaa, $parentId = null, $level = 0)
+    public function buildTree($gaa, $parentId = null, $level = 0, $projectId = null)
     {
         $tree = [];
         foreach ($gaa as $category) {
             if ($category->parent_id === $parentId) {
-                $children = $this->buildTree($gaa, $category->id, $level + 1);
+                $children = $this->buildTree($gaa, $category->id, $level + 1, $projectId);
 
                 $expenses = [];
                 foreach ($category->gaaProjects as $project) {
-                    foreach ($project->expenses as $expense) {
-                        $expenses[] = $expense;
+                    // Filter by project_id if provided (for project view)
+                    if ($projectId === null || $project->project_id == $projectId) {
+                        foreach ($project->expenses as $expense) {
+                            $expenses[] = $expense;
+                        }
                     }
                 }
                 $remaining_balance = 0; //get from expenses array, with type is OUT and IN
@@ -154,7 +157,7 @@ class GAAController extends Controller
             $filteredgaa->where('parent_id', '!=', null)
         );
 
-        $categoryTree = $this->buildTree($sortedgaa);
+        $categoryTree = $this->buildTree($sortedgaa, null, 0, $projectId);
         // return response()->json($categoryTree);
         return view('gaa.project', compact('categoryTree', 'selectedYear', 'divisions', 'project', 'approved_budget'));
     }
@@ -418,7 +421,7 @@ class GAAController extends Controller
             $filteredgaa->where('parent_id', '!=', null)
         );
 
-        return response()->json(array('message' => 'success', 'items' => $this->buildTree($sortedgaa)));
+        return response()->json(array('message' => 'success', 'items' => $this->buildTree($sortedgaa, null, 0, $project_id)));
     }
 
     public function moveToOtherProject(Request $request)
