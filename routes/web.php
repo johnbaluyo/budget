@@ -63,3 +63,5 @@ Route::post('/project/getGaaFromProject', 'GAAController@getGaaFromProject');
 Route::post('/project/moveToOtherProject', 'GAAController@moveToOtherProject');
 
 Route::get('/projects/{year}', 'ProjectController@index');
+Route::post('/projects/getMonthlyBudget', 'ProjectController@getMonthlyBudget');
+Route::post('/projects/saveMonthlyBudget', 'ProjectController@saveMonthlyBudget');
