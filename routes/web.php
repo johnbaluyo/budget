@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::redirect('/', 'gaa/' . date('Y'), 301);
+Route::redirect('/', 'login/', 301);
 
 Auth::routes();
 
