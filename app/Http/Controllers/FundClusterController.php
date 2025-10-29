@@ -8,6 +8,12 @@ use Illuminate\Http\Request;
 
 class FundClusterController extends Controller
 {
+
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     public function index()
     {
         $my_data = FundCluster::all();
