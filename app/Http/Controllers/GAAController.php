@@ -275,18 +275,7 @@ class GAAController extends Controller
             $model->remarks = $request->remarks;
             $model->parent_id = $request->parent_id;
             $model->approved_budget_id = $approved_budget_id;
-
-            if (isset($request->project)) {
-                $model->budget_allocation = $request->allocation;
-                $model->save();
-                $gaa_project = new GAAProject();
-                $gaa_project->project_id = $request->project;
-                $gaa_project->gaa_id = $model->id;
-                $gaa_project->budget = $request->allocation;
-                $gaa_project->save();
-            } else {
-                $model->save();
-            }
+            $model->save();
             return redirect()->back()->with([
                 'message' => 'Record saved successfully.',
                 'color' => 'success'
@@ -349,10 +338,51 @@ class GAAController extends Controller
             $realign_to_gaa_project = null;
 
             if ($request->realign_project_id && $request->realign_gaa_id) {
-                $realign_to_gaa_project = GAAProject::where('project_id', $request->realign_project_id)
-                    ->where('gaa_id', $request->realign_gaa_id)
-                    ->pluck('id')
-                    ->first();
+                $realignGaaIdentifier = $request->realign_gaa_id;
+
+                // If the identifier is not numeric, treat it as an item name and ensure a GAA record and GAAProject exist
+                if (!is_numeric($realignGaaIdentifier)) {
+                    $gaaName = trim($realignGaaIdentifier);
+                    // find project to get approved_budget context
+                    $targetProject = Project::find($request->realign_project_id);
+                    $approved_budget_id = $targetProject->approved_budget_id ?? ApprovedBudget::where('year', date('Y'))->value('id');
+
+                    // try to find existing GAA item with same name under the same approved budget
+                    $gaaItem = GAA::where('item_of_expenditure', $gaaName)
+                        ->where('approved_budget_id', $approved_budget_id)
+                        ->first();
+
+                    if (!$gaaItem) {
+                        // create minimal GAA item
+                        $gaaItem = new GAA();
+                        $gaaItem->item_of_expenditure = $gaaName;
+                        $gaaItem->object_type = $request->realign_object_type;
+                        $gaaItem->fund_cluster = $request->realign_fund_cluster;
+                        $gaaItem->approved_budget_id = $approved_budget_id;
+                        $gaaItem->save();
+                    }
+
+                    // ensure there's a GAAProject linking this gaa item to the target project
+                    $realign_to_gaa_project = GAAProject::where('project_id', $request->realign_project_id)
+                        ->where('gaa_id', $gaaItem->id)
+                        ->pluck('id')
+                        ->first();
+
+                    if (!$realign_to_gaa_project) {
+                        $newGaaProject = new GAAProject();
+                        $newGaaProject->project_id = $request->realign_project_id;
+                        $newGaaProject->gaa_id = $gaaItem->id;
+                        $newGaaProject->budget = 0;
+                        $newGaaProject->save();
+                        $realign_to_gaa_project = $newGaaProject->id;
+                    }
+                } else {
+                    // numeric identifier - assume it's a gaa_id
+                    $realign_to_gaa_project = GAAProject::where('project_id', $request->realign_project_id)
+                        ->where('gaa_id', $request->realign_gaa_id)
+                        ->pluck('id')
+                        ->first();
+                }
 
                 if ($realign_to_gaa_project) {
                     GAAProjectExpenses::create([
