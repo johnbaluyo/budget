@@ -86,8 +86,8 @@
     </div>
 
     {{-- tracking modal --}}
-    <div class="modal fade" id="trackingModal" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="trackingModalLabel" aria-hidden="true"
-        tabindex="-1">
+    <div class="modal fade" id="trackingModal" data-bs-backdrop="static" data-bs-keyboard="false"
+        aria-labelledby="trackingModalLabel" aria-hidden="true" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
@@ -121,7 +121,8 @@
                         <div class="col-sm">
                             <label class="text-secondary"><small>--> realign funds to:</small></label><br>
                             <label>Project:</label>
-                            <select class="form-select" id="realign_project_id" name="realign_project_id" onchange="loadGaaFromProject()">
+                            <select class="form-select" id="realign_project_id" name="realign_project_id"
+                                onchange="loadGaaFromProject()">
                                 <option value="" selected>- Select Project -</option>
                                 @php $projects = App\Project::where('approved_budget_id', $approved_budget->id)->get(); @endphp
                                 @foreach ($projects as $item)
@@ -133,26 +134,29 @@
                     <div class="row form-group realignSection" style="display: none;">
                         <div class="col-sm">
                             <label>Project Item:</label>
-                            <select class="form-select" id="realign_gaa_id" name="realign_gaa_id">
-                                <option value="" selected>- Select Item -</option>
-                            </select>
+                            <input list="realign_gaa_list" id="realign_gaa_id" name="realign_gaa_id" class="form-control"
+                                placeholder="Type or select item">
+                            <datalist id="realign_gaa_list">
+                                <option value="">- Select Item -</option>
+                            </datalist>
                         </div>
                     </div>
                     <div class="row form-group" id="realignButton" style="display: none;">
                         <div class="col-sm">
-                            <button class="btn btn-ssi btn-lg" id="btn_realign" onclick="updateTracking('OUT')"><span class="fa fa-exchange-alt"></span>
+                            <button class="btn btn-ssi btn-lg" id="btn_realign" onclick="updateTracking('OUT')"><span
+                                    class="fa fa-exchange-alt"></span>
                                 Realign Fund
                                 (OUT)</button>
                         </div>
                     </div>
                     <div class="row form-group" id="inOutButtons">
                         <div class="col-sm">
-                            <button class="btn btn-success btn-block btn-lg" id="btn_in" onclick="updateTracking('IN')"><span
-                                    class="fa fa-plus"></span> IN</button>
+                            <button class="btn btn-success btn-block btn-lg" id="btn_in"
+                                onclick="updateTracking('IN')"><span class="fa fa-plus"></span> IN</button>
                         </div>
                         <div class="col-sm">
-                            <button class="btn btn-danger btn-block btn-lg" id="btn_out" onclick="updateTracking('OUT')"><span
-                                    class="fa fa-minus"></span> OUT</button>
+                            <button class="btn btn-danger btn-block btn-lg" id="btn_out"
+                                onclick="updateTracking('OUT')"><span class="fa fa-minus"></span> OUT</button>
                         </div>
                     </div>
                     <div class="row form-group border-top">
@@ -176,8 +180,8 @@
     </div>
 
     {{-- sub item --}}
-    <div class="modal fade" id="GAAitemModal" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="GAAitemLabel" aria-hidden="true"
-        tabindex="-1">
+    <div class="modal fade" id="GAAitemModal" data-bs-backdrop="static" data-bs-keyboard="false"
+        aria-labelledby="GAAitemLabel" aria-hidden="true" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <form action="{{ URL::to('/gaa/store') }}" method="post">
@@ -194,7 +198,8 @@
                         <div class="row form-group">
                             <div class="col-sm">
                                 <label>Item of Expenditure:</label>
-                                <input class="form-control" id="item_of_expenditure" name="item_of_expenditure" type="text" required>
+                                <input class="form-control" id="item_of_expenditure" name="item_of_expenditure"
+                                    type="text" required>
                             </div>
                         </div>
                         <div class="row form-group">
@@ -210,8 +215,8 @@
                             </div>
                             <div class="col-sm">
                                 <label>Fund Cluster</label>
-                                <input class="form-control" name="fund_cluster" type="text" value="RAF-01" style="flex-grow: 0.5;"
-                                    placeholder="Fund Cluster" readonly>
+                                <input class="form-control" name="fund_cluster" type="text" value="RAF-01"
+                                    style="flex-grow: 0.5;" placeholder="Fund Cluster" readonly>
                             </div>
                             <div class="col-sm">
                                 <label>Object Type</label>
@@ -222,12 +227,14 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="row form-group">
-                            <div class="col-sm">
-                                <label>Budget Allocation:</label>
-                                <input class="form-control" id="allocation" name="allocation" type="number">
+                        @if (Request::is('gaa/*'))
+                            <div class="row form-group">
+                                <div class="col-sm">
+                                    <label>Budget Allocation:</label>
+                                    <input class="form-control" id="allocation" name="allocation" type="number">
+                                </div>
                             </div>
-                        </div>
+                        @endif
                         <div class="row form-group">
                             <div class="col-sm">
                                 <label>Remarks:</label>

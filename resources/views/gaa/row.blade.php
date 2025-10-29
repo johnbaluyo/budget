@@ -176,6 +176,11 @@
                     </li>
                 @else
                     <li>
+                        <a class="dropdown-item" onclick="editGaaItem({{ $category['gaa_id'] }})">
+                            <i class="fa fa-edit text-primary"></i> Edit Details
+                        </a>
+                    </li>
+                    <li>
                         <a class="dropdown-item"
                             onclick="moveToOtherProject(`{{ $category['gaa_id'] }}`,`{{ $project->id }}`)">
                             <i class="fa fa-exchange-alt text-primary"></i>Move Item To Other Project
