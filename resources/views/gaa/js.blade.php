@@ -825,11 +825,9 @@
             const gaaProjectId = $('#bed_gaa_project_id').val();
             const totalBudget = parseFloat($('#bed_total_budget').val()) || 0;
             
-            // Calculate total allocated directly from input fields
-            let totalAllocated = 0;
-            $('.bed-month-input').each(function() {
-                totalAllocated += parseFloat($(this).val()) || 0;
-            });
+            // Calculate total using the existing function
+            calculateBEDTotal();
+            const totalAllocated = parseFloat($('#bed_total_allocated').text()) || 0;
             
             if (totalAllocated > totalBudget) {
                 Swal.fire('Error', 'Total monthly allocation exceeds item budget', 'error');

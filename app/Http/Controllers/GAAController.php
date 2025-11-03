@@ -568,6 +568,25 @@ class GAAController extends Controller
                 ], 422);
             }
 
+            // Validate structure of each monthly budget entry
+            foreach ($monthlyBudgets as $item) {
+                if (!isset($item['month']) || !isset($item['budget_amount'])) {
+                    return response()->json([
+                        'error' => 'Each monthly budget must have month and budget_amount'
+                    ], 422);
+                }
+                if ($item['month'] < 1 || $item['month'] > 12) {
+                    return response()->json([
+                        'error' => 'Month must be between 1 and 12'
+                    ], 422);
+                }
+                if ($item['budget_amount'] < 0) {
+                    return response()->json([
+                        'error' => 'Budget amount cannot be negative'
+                    ], 422);
+                }
+            }
+
             // Validate total doesn't exceed gaa_project budget
             $gaaProject = GAAProject::find($gaaProjectId);
             $totalBudget = $gaaProject->budget;
