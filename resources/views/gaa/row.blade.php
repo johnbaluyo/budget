@@ -147,6 +147,8 @@
     <td class="d-flex justify-content-end">
 
         @if (Request::is('project*') && $row_total > 0)
+            <button class="btn btn-sm btn-info"
+                onclick="showBED(`{{ $category['gaa_id'] }}`)">BED</button>&nbsp;|&nbsp;
             <button class="btn btn-sm btn-success"
                 onclick="showTracking(`{{ $category['gaa_id'] }}`)">Tracking</button>&nbsp;|&nbsp;
         @endif
@@ -157,6 +159,12 @@
             </button>
             <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
                 @if (Request::is('gaa*'))
+                    <li>
+                        <a class="dropdown-item"
+                            onclick="showConsolidatedBED(`{{ $category['gaa_id'] }}`,`{{ $category['item_of_expenditure'] }}`)">
+                            <i class="fa fa-calendar-alt text-info"></i> View BED (Consolidated)
+                        </a>
+                    </li>
                     <li>
                         <a class="dropdown-item"
                             onclick="addItemToProject(`{{ $category['gaa_id'] }}`,`{{ $category['item_of_expenditure'] }}`,`{{ $row_total - $category['allocated_budget'] }}`)">

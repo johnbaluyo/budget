@@ -27,4 +27,9 @@ class GAAProject extends Model
     {
         return $this->hasMany(GAAProjectExpenses::class, 'gaa_project_id', 'id');
     }
+
+    public function monthlyBudgets()
+    {
+        return $this->hasMany(GAAProjectMonthlyBudget::class, 'gaa_project_id', 'id');
+    }
 }

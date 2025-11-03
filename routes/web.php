@@ -58,6 +58,7 @@ Route::post('/gaa/edit', 'GAAController@edit');
 Route::post('/gaa/getGaaprojects', 'GAAController@getGaaprojects');
 Route::post('/gaa/saveProjectAllocation', 'GAAController@saveProjectAllocation');
 Route::post('/gaa/saveGAABudget', 'GAAController@saveGAABudget');
+Route::post('/gaa/getGAAConsolidatedBED', 'GAAController@getGAAConsolidatedBED');
 Route::get('/project/{id}', 'GAAController@project')->name('project');
 Route::post('/project/saveItemToProject', 'GAAController@saveItemToProject');
 Route::post('/project/getExpenseId', 'GAAController@getExpenseId');
@@ -65,6 +66,9 @@ Route::post('/project/loadTracking', 'GAAController@loadTracking');
 Route::post('/project/updateTracking', 'GAAController@updateTracking');
 Route::post('/project/getGaaFromProject', 'GAAController@getGaaFromProject');
 Route::post('/project/moveToOtherProject', 'GAAController@moveToOtherProject');
+Route::post('/project/getGAAProjectMonthlyBudget', 'GAAController@getGAAProjectMonthlyBudget');
+Route::post('/project/saveGAAProjectMonthlyBudget', 'GAAController@saveGAAProjectMonthlyBudget');
+Route::post('/project/getProjectConsolidatedBED', 'GAAController@getProjectConsolidatedBED');
 
 Route::get('/projects/{year}', 'ProjectController@index');
 Route::post('/projects/getMonthlyBudget', 'ProjectController@getMonthlyBudget');

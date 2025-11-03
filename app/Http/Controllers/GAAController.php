@@ -8,6 +8,7 @@ use App\Division;
 use App\GAA;
 use App\GAAProject;
 use App\GAAProjectExpenses;
+use App\GAAProjectMonthlyBudget;
 use App\Project;
 use Illuminate\Http\Request;
 
@@ -513,6 +514,163 @@ class GAAController extends Controller
             return response()->json(['message' => 'success']);
         } catch (\Exception $e) {
             return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function getGAAProjectMonthlyBudget(Request $request)
+    {
+        try {
+            $gaaProjectId = $request->get('gaa_project_id');
+            $year = $request->get('year');
+
+            $gaaProject = GAAProject::with(['monthlyBudgets' => function ($query) use ($year) {
+                $query->where('year', $year);
+            }, 'gaa'])->find($gaaProjectId);
+
+            if (!$gaaProject) {
+                return response()->json(['error' => 'GAA Project not found'], 404);
+            }
+
+            // Prepare monthly data
+            $monthlyData = [];
+            for ($month = 1; $month <= 12; $month++) {
+                $existingBudget = $gaaProject->monthlyBudgets->where('month', $month)->first();
+                $monthlyData[] = [
+                    'month' => $month,
+                    'budget_amount' => $existingBudget ? $existingBudget->budget_amount : 0
+                ];
+            }
+
+            return response()->json([
+                'item_of_expenditure' => $gaaProject->gaa->item_of_expenditure,
+                'total_budget' => $gaaProject->budget,
+                'monthly_budgets' => $monthlyData
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function saveGAAProjectMonthlyBudget(Request $request)
+    {
+        try {
+            $request->validate([
+                'gaa_project_id' => 'required|exists:gaa_project,id',
+                'year' => 'required|integer',
+                'monthly_budgets' => 'required|array',
+                'monthly_budgets.*.month' => 'required|integer|min:1|max:12',
+                'monthly_budgets.*.budget_amount' => 'required|numeric|min:0'
+            ]);
+
+            $gaaProjectId = $request->gaa_project_id;
+            $year = $request->year;
+            $monthlyBudgets = $request->monthly_budgets;
+
+            // Validate total doesn't exceed gaa_project budget
+            $gaaProject = GAAProject::find($gaaProjectId);
+            $totalBudget = $gaaProject->budget;
+
+            $totalAllocated = array_sum(array_column($monthlyBudgets, 'budget_amount'));
+            if ($totalAllocated > $totalBudget) {
+                return response()->json([
+                    'error' => 'Total monthly allocation exceeds item budget'
+                ], 422);
+            }
+
+            // Save or update monthly budgets
+            foreach ($monthlyBudgets as $data) {
+                GAAProjectMonthlyBudget::updateOrCreate(
+                    [
+                        'gaa_project_id' => $gaaProjectId,
+                        'month' => $data['month'],
+                        'year' => $year
+                    ],
+                    [
+                        'budget_amount' => $data['budget_amount']
+                    ]
+                );
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Monthly budget allocation saved successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function getProjectConsolidatedBED(Request $request)
+    {
+        try {
+            $projectId = $request->get('project_id');
+            $year = $request->get('year');
+
+            // Get all gaa_project items for this project
+            $gaaProjects = GAAProject::where('project_id', $projectId)
+                ->with(['monthlyBudgets' => function ($query) use ($year) {
+                    $query->where('year', $year);
+                }])
+                ->get();
+
+            // Consolidate monthly totals
+            $consolidatedMonthly = [];
+            for ($month = 1; $month <= 12; $month++) {
+                $monthTotal = 0;
+                foreach ($gaaProjects as $gaaProject) {
+                    $monthlyBudget = $gaaProject->monthlyBudgets->where('month', $month)->first();
+                    if ($monthlyBudget) {
+                        $monthTotal += $monthlyBudget->budget_amount;
+                    }
+                }
+                $consolidatedMonthly[] = [
+                    'month' => $month,
+                    'budget_amount' => $monthTotal
+                ];
+            }
+
+            return response()->json([
+                'monthly_budgets' => $consolidatedMonthly
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function getGAAConsolidatedBED(Request $request)
+    {
+        try {
+            $gaaId = $request->get('gaa_id');
+            $year = $request->get('year');
+
+            // Get all gaa_project items for this GAA item across all projects
+            $gaaProjects = GAAProject::where('gaa_id', $gaaId)
+                ->with(['monthlyBudgets' => function ($query) use ($year) {
+                    $query->where('year', $year);
+                }])
+                ->get();
+
+            // Consolidate monthly totals
+            $consolidatedMonthly = [];
+            for ($month = 1; $month <= 12; $month++) {
+                $monthTotal = 0;
+                foreach ($gaaProjects as $gaaProject) {
+                    $monthlyBudget = $gaaProject->monthlyBudgets->where('month', $month)->first();
+                    if ($monthlyBudget) {
+                        $monthTotal += $monthlyBudget->budget_amount;
+                    }
+                }
+                $consolidatedMonthly[] = [
+                    'month' => $month,
+                    'budget_amount' => $monthTotal
+                ];
+            }
+
+            return response()->json([
+                'monthly_budgets' => $consolidatedMonthly
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 }

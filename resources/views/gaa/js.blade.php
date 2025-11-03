@@ -1,5 +1,10 @@
     <script>
         $(document).ready(function() {
+            // BED modal - calculate total allocated on input change
+            $(document).on('input', '.bed-month-input', function() {
+                calculateBEDTotal();
+            });
+
             $('#realignCheckbox').on('change', function() {
                 toggleRealignSection($(this).is(':checked'));
             });
@@ -707,6 +712,181 @@
                 cache: false,
                 contentType: false,
                 processData: false
+            });
+        }
+
+        // Consolidated BED Function (for GAA index view)
+        function showConsolidatedBED(gaa_id, item_name) {
+            var formData = new FormData();
+            formData.append('gaa_id', gaa_id);
+            formData.append('year', '{{ $selectedYear }}');
+            formData.append('_token', '{{ csrf_token() }}');
+            
+            $.ajax({
+                url: "{{ URL::to('gaa/getGAAConsolidatedBED') }}",
+                method: 'POST',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                cache: false,
+                success: function(response) {
+                    $('#consolidatedBEDModal').modal('show');
+                    $('#consolidated_bed_item_name').html(item_name);
+                    $('#consolidated_bed_gaa_id').val(gaa_id);
+                    
+                    const months = ['January', 'February', 'March', 'April', 'May', 'June', 
+                                    'July', 'August', 'September', 'October', 'November', 'December'];
+                    let grandTotal = 0;
+                    let tbody = $('#consolidated_bed_tbody');
+                    tbody.empty();
+                    
+                    response.monthly_budgets.forEach(function(item, index) {
+                        const amount = parseFloat(item.budget_amount);
+                        grandTotal += amount;
+                        const row = `
+                            <tr>
+                                <td>${months[index]}</td>
+                                <td>₱${amount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                            </tr>
+                        `;
+                        tbody.append(row);
+                    });
+                    
+                    $('#consolidated_bed_grand_total').text(grandTotal.toLocaleString('en-US', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }));
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error loading consolidated BED data:', error);
+                    Swal.fire('Error', 'Failed to load consolidated BED data', 'error');
+                }
+            });
+        }
+
+        // BED (Budget Execution Distribution) Functions
+        function showBED(gaa_id) {
+            var formData = new FormData();
+            formData.append('gaa_id', gaa_id);
+            formData.append('project_id', '{{ $project->id }}');
+            formData.append('_token', '{{ csrf_token() }}');
+            
+            // First get the gaa_project_id
+            $.ajax({
+                url: "{{ URL::to('project/getExpenseId') }}",
+                method: 'POST',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                cache: false,
+                success: function(response) {
+                    loadBED(response.id, response.gaa.item_of_expenditure);
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error getting GAA project:', error);
+                    Swal.fire('Error', 'Failed to load BED data', 'error');
+                }
+            });
+        }
+
+        function loadBED(gaa_project_id, item_name) {
+            var formData = new FormData();
+            formData.append('gaa_project_id', gaa_project_id);
+            formData.append('year', '{{ $selectedYear }}');
+            formData.append('_token', '{{ csrf_token() }}');
+            
+            $.ajax({
+                url: "{{ URL::to('project/getGAAProjectMonthlyBudget') }}",
+                method: 'POST',
+                data: formData,
+                dataType: 'json',
+                contentType: false,
+                processData: false,
+                cache: false,
+                success: function(response) {
+                    $('#bedModal').modal('show');
+                    $('#bed_gaa_project_id').val(gaa_project_id);
+                    $('#bed_expense_name').html(response.item_of_expenditure);
+                    $('#bed_total_budget').val(parseFloat(response.total_budget).toFixed(2));
+                    
+                    // Fill in monthly budgets
+                    response.monthly_budgets.forEach(function(item) {
+                        $(`.bed-month-input[data-month="${item.month}"]`).val(parseFloat(item.budget_amount).toFixed(2));
+                    });
+                    
+                    calculateBEDTotal();
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error loading BED data:', error);
+                    Swal.fire('Error', 'Failed to load monthly budget data', 'error');
+                }
+            });
+        }
+
+        function calculateBEDTotal() {
+            let total = 0;
+            $('.bed-month-input').each(function() {
+                const value = parseFloat($(this).val()) || 0;
+                total += value;
+            });
+            
+            $('#bed_total_allocated').text(total.toFixed(2));
+            
+            const totalBudget = parseFloat($('#bed_total_budget').val()) || 0;
+            if (total > totalBudget) {
+                $('#bed_over_budget_warning').show();
+            } else {
+                $('#bed_over_budget_warning').hide();
+            }
+        }
+
+        function saveBED() {
+            const gaaProjectId = $('#bed_gaa_project_id').val();
+            const totalBudget = parseFloat($('#bed_total_budget').val()) || 0;
+            const totalAllocated = parseFloat($('#bed_total_allocated').text()) || 0;
+            
+            if (totalAllocated > totalBudget) {
+                Swal.fire('Error', 'Total monthly allocation exceeds item budget', 'error');
+                return;
+            }
+            
+            // Collect monthly budgets
+            const monthlyBudgets = [];
+            $('.bed-month-input').each(function() {
+                const month = $(this).data('month');
+                const amount = parseFloat($(this).val()) || 0;
+                monthlyBudgets.push({
+                    month: month,
+                    budget_amount: amount
+                });
+            });
+            
+            const formData = new FormData();
+            formData.append('gaa_project_id', gaaProjectId);
+            formData.append('year', '{{ $selectedYear }}');
+            formData.append('monthly_budgets', JSON.stringify(monthlyBudgets));
+            formData.append('_token', '{{ csrf_token() }}');
+            
+            $.ajax({
+                url: "{{ URL::to('project/saveGAAProjectMonthlyBudget') }}",
+                method: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function(response) {
+                    if (response.success) {
+                        Swal.fire('Success', response.message, 'success');
+                        $('#bedModal').modal('hide');
+                    } else {
+                        Swal.fire('Error', response.error || 'Failed to save', 'error');
+                    }
+                },
+                error: function(xhr) {
+                    const errorMsg = xhr.responseJSON && xhr.responseJSON.error ? xhr.responseJSON.error : 'Failed to save monthly budget';
+                    Swal.fire('Error', errorMsg, 'error');
+                }
             });
         }
     </script>
