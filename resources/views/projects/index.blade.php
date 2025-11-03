@@ -47,7 +47,7 @@
                                             <td>{{ number_format($data->total_remaining, 2) }}</td>
                                             <td>
                                                 <button class="btn btn-sm btn-primary"
-                                                    onclick="openBEDModal({{ $data->id }}, '{{ $data->project_name }}', {{ $data->total_budget }})"
+                                                    onclick="openBEDModal({{ $data->id }}, '{{ $data->project_name }}')"
                                                     title="Budget Execution Distribution">
                                                     <i class="fas fa-calendar-alt"></i> BED
                                                 </button>
@@ -122,7 +122,7 @@
 
 @section('js')
     <script>
-        function openBEDModal(projectId, projectName, totalBudget) {
+        function openBEDModal(projectId, projectName) {
             $('#bed_project_id').val(projectId);
             $('#bed_project_name').text(projectName);
 
