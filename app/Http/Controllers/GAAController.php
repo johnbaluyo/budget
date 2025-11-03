@@ -555,14 +555,18 @@ class GAAController extends Controller
             $request->validate([
                 'gaa_project_id' => 'required|exists:gaa_project,id',
                 'year' => 'required|integer',
-                'monthly_budgets' => 'required|array',
-                'monthly_budgets.*.month' => 'required|integer|min:1|max:12',
-                'monthly_budgets.*.budget_amount' => 'required|numeric|min:0'
+                'monthly_budgets' => 'required|string'
             ]);
 
             $gaaProjectId = $request->gaa_project_id;
             $year = $request->year;
-            $monthlyBudgets = $request->monthly_budgets;
+            $monthlyBudgets = json_decode($request->monthly_budgets, true);
+            
+            if (!is_array($monthlyBudgets)) {
+                return response()->json([
+                    'error' => 'Invalid monthly budgets format'
+                ], 422);
+            }
 
             // Validate total doesn't exceed gaa_project budget
             $gaaProject = GAAProject::find($gaaProjectId);
