@@ -575,20 +575,27 @@ class GAAController extends Controller
                         'error' => 'Each monthly budget must have month and budget_amount'
                     ], 422);
                 }
-                if ($item['month'] < 1 || $item['month'] > 12) {
+                if (!is_numeric($item['month']) || $item['month'] < 1 || $item['month'] > 12) {
                     return response()->json([
-                        'error' => 'Month must be between 1 and 12'
+                        'error' => 'Month must be a number between 1 and 12'
                     ], 422);
                 }
-                if ($item['budget_amount'] < 0) {
+                if (!is_numeric($item['budget_amount']) || $item['budget_amount'] < 0) {
                     return response()->json([
-                        'error' => 'Budget amount cannot be negative'
+                        'error' => 'Budget amount must be a non-negative number'
                     ], 422);
                 }
             }
 
             // Validate total doesn't exceed gaa_project budget
             $gaaProject = GAAProject::find($gaaProjectId);
+            
+            if (!$gaaProject) {
+                return response()->json([
+                    'error' => 'GAA Project not found'
+                ], 404);
+            }
+            
             $totalBudget = $gaaProject->budget;
 
             $totalAllocated = array_sum(array_column($monthlyBudgets, 'budget_amount'));
