@@ -21,6 +21,7 @@ class CreateGaaProjectMonthlyBudgetsTable extends Migration
             $table->decimal('budget_amount', 12, 2)->default(0.00);
             $table->timestamps();
 
+            $table->foreign('gaa_project_id')->references('id')->on('gaa_project')->onDelete('cascade');
             $table->unique(['gaa_project_id', 'month', 'year']);
         });
     }

@@ -562,7 +562,7 @@ class GAAController extends Controller
             $year = $request->year;
             $monthlyBudgets = json_decode($request->monthly_budgets, true);
             
-            if (!is_array($monthlyBudgets)) {
+            if (json_last_error() !== JSON_ERROR_NONE || !is_array($monthlyBudgets)) {
                 return response()->json([
                     'error' => 'Invalid monthly budgets format'
                 ], 422);
