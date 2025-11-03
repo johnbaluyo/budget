@@ -12,7 +12,6 @@ class GAAProjectExpenses extends Model
         'amount',
         'remarks',
         'date',
-        'division_id',
         'realign_from',
         'realign_to',
     ];
@@ -22,11 +21,6 @@ class GAAProjectExpenses extends Model
     public function gaaProject()
     {
         return $this->belongsTo(GAAProject::class, 'gaa_project_id', 'id');
-    }
-
-    public function division()
-    {
-        return $this->hasOne(Division::class, 'id', 'division_id');
     }
 
     public function realignFrom()
