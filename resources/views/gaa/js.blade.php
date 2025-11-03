@@ -391,27 +391,6 @@
             });
         }
 
-        function _delete_tracking(tracking_id) {
-            var formData = new FormData();
-            formData.append('tracking_id', tracking_id);
-            $.ajax({
-                url: "{{ URL::to('categories/deleteTracking') }}",
-                method: 'post',
-                data: formData,
-                dataType: 'json',
-                success: function(response) {
-                    if (response.message === 'success') {
-                        loadTracking($('#tracking_category_id').val());
-                    } else {
-                        Swal.fire('Error', response.message, 'error');
-                    }
-                },
-                cache: false,
-                contentType: false,
-                processData: false
-            })
-        }
-
         function printTable() {
             $('#budgetTable th:last-child, #budgetTable th:nth-last-child(2)').hide();
             $('#budgetTable td:last-child, #budgetTable td:nth-last-child(2)').hide();

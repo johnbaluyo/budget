@@ -392,7 +392,6 @@ class GAAController extends Controller
                         'amount' => $request->amount,
                         'remarks' => $request->remarks,
                         'date' => $request->date,
-                        'division_id' => $request->division_id,
                         'realign_from' => $request->gaa_project_id,
                     ]);
                 }
@@ -404,7 +403,6 @@ class GAAController extends Controller
                 'amount' => $request->amount,
                 'remarks' => $request->remarks,
                 'date' => $request->date,
-                'division_id' => $request->division_id,
                 'realign_to' => $realign_to_gaa_project,
             ]);
 

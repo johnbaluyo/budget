@@ -167,7 +167,6 @@
                                     <th>Amount</th>
                                     <th>Activity Date</th>
                                     <th>Remarks</th>
-                                    {{-- <th></th> --}}
                                 </thead>
                                 <tbody id="tracking_tbody">
                                 </tbody>

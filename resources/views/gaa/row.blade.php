@@ -1,4 +1,3 @@
-{{-- <tr @if ($category['project']['project_name'] != 'PSRTI' && Request::is('gaa*')) style="background-color: #cef5d7;" @endif> --}}
 <tr>
     <td
         style="padding-left: calc(20px * {{ $level }}); font-weight: 
@@ -192,7 +191,6 @@
                         <a class="dropdown-item"
                             onclick="moveToOtherProject(`{{ $category['gaa_id'] }}`,`{{ $project->id }}`)">
                             <i class="fa fa-exchange-alt text-primary"></i>Move Item To Other Project
-                            {{-- to do --}}
                         </a>
                     </li>
                 @endif
