@@ -25,9 +25,15 @@ class ProjectController extends Controller
             return redirect('/approvedbudget');
         }
         $projects = $approved_budget
-            ? Project::with(['division', 'gaaProjects.expenses', 'gaaProjects.monthlyBudgets' => function($query) use ($selectedYear) {
-                $query->where('year', $selectedYear);
-            }])->where('approved_budget_id', $approved_budget->id)->get()
+            ? Project::with([
+                'division',
+                'gaaProjects.expenses' => function($query) use ($selectedYear) {
+                    $query->whereYear('date', $selectedYear);
+                },
+                'gaaProjects.monthlyBudgets' => function($query) use ($selectedYear) {
+                    $query->where('year', $selectedYear);
+                }
+            ])->where('approved_budget_id', $approved_budget->id)->get()
             : collect();
 
         // Calculate totals and monthly data for each project
@@ -53,18 +59,16 @@ class ProjectController extends Controller
                 }
                 
                 // Aggregate monthly expenses from all gaa_projects
+                // Expenses are already filtered by year in the eager loading
                 foreach ($gaaProject->expenses as $expense) {
                     if ($expense->date) {
-                        $month = (int) date('n', strtotime($expense->date));
-                        $expenseYear = (int) date('Y', strtotime($expense->date));
+                        $expenseDate = \Carbon\Carbon::parse($expense->date);
+                        $month = $expenseDate->month;
                         
-                        // Only include expenses from the selected year
-                        if ($expenseYear == $selectedYear) {
-                            if ($expense->type == 'OUT') {
-                                $monthlyExpenses[$month] += $expense->amount;
-                            } elseif ($expense->type == 'IN') {
-                                $monthlyExpenses[$month] -= $expense->amount;
-                            }
+                        if ($expense->type == 'OUT') {
+                            $monthlyExpenses[$month] += $expense->amount;
+                        } elseif ($expense->type == 'IN') {
+                            $monthlyExpenses[$month] -= $expense->amount;
                         }
                     }
                 }

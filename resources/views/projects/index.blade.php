@@ -46,13 +46,13 @@
                                     <tr>
                                         <td><strong>Allocated Budget</strong></td>
                                         @for ($month = 1; $month <= 12; $month++)
-                                            <td class="text-right">{{ number_format($project->monthly_budgets[$month], 2) }}</td>
+                                            <td class="text-right">{{ number_format($project->monthly_budgets[$month] ?? 0, 2) }}</td>
                                         @endfor
                                     </tr>
                                     <tr>
                                         <td><strong>Actual Expenses</strong></td>
                                         @for ($month = 1; $month <= 12; $month++)
-                                            <td class="text-right">{{ number_format($project->monthly_expenses[$month], 2) }}</td>
+                                            <td class="text-right">{{ number_format($project->monthly_expenses[$month] ?? 0, 2) }}</td>
                                         @endfor
                                     </tr>
                                 </tbody>
