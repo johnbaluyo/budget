@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\ApprovedBudget;
 use App\Project;
 use App\ProjectMonthlyBudget;
+use App\GAAProject;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ProjectController extends Controller
 {
@@ -25,13 +27,19 @@ class ProjectController extends Controller
             return redirect('/approvedbudget');
         }
         $projects = $approved_budget
-            ? Project::with(['division', 'gaaProjects.expenses'])->where('approved_budget_id', $approved_budget->id)->get()
+            ? Project::with(['division', 'gaaProjects.expenses', 'gaaProjects.monthlyBudgets' => function($query) use ($selectedYear) {
+                $query->where('year', $selectedYear);
+            }])->where('approved_budget_id', $approved_budget->id)->get()
             : collect();
 
-        // Calculate totals for each project
+        // Calculate totals and monthly data for each project
         foreach ($projects as $project) {
             $totalBudget = 0;
             $totalExpenses = 0;
+            
+            // Initialize monthly arrays
+            $monthlyBudgets = array_fill(1, 12, 0);
+            $monthlyExpenses = array_fill(1, 12, 0);
 
             foreach ($project->gaaProjects as $gaaProject) {
                 $totalBudget += $gaaProject->budget;
@@ -40,11 +48,35 @@ class ProjectController extends Controller
                 $out = $gaaProject->expenses->where('type', 'OUT')->sum('amount');
                 $in = $gaaProject->expenses->where('type', 'IN')->sum('amount');
                 $totalExpenses += ($out - $in);
+                
+                // Aggregate monthly budgets from all gaa_projects
+                foreach ($gaaProject->monthlyBudgets as $monthlyBudget) {
+                    $monthlyBudgets[$monthlyBudget->month] += $monthlyBudget->budget_amount;
+                }
+                
+                // Aggregate monthly expenses from all gaa_projects
+                foreach ($gaaProject->expenses as $expense) {
+                    if ($expense->date) {
+                        $month = (int) date('n', strtotime($expense->date));
+                        $expenseYear = (int) date('Y', strtotime($expense->date));
+                        
+                        // Only include expenses from the selected year
+                        if ($expenseYear == $selectedYear) {
+                            if ($expense->type == 'OUT') {
+                                $monthlyExpenses[$month] += $expense->amount;
+                            } elseif ($expense->type == 'IN') {
+                                $monthlyExpenses[$month] -= $expense->amount;
+                            }
+                        }
+                    }
+                }
             }
 
             $project->total_budget = $totalBudget;
             $project->total_expenses = $totalExpenses;
             $project->total_remaining = $totalBudget - $totalExpenses;
+            $project->monthly_budgets = $monthlyBudgets;
+            $project->monthly_expenses = $monthlyExpenses;
         }
 
         return view('projects.index', compact('projects', 'selectedYear'));
