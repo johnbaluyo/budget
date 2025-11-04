@@ -45,15 +45,15 @@
                                 <tbody>
                                     <tr>
                                         <td><strong>Allocated Budget</strong></td>
-                                        @foreach ($project->monthly_budgets as $budget)
-                                            <td class="text-right">{{ number_format($budget, 2) }}</td>
-                                        @endforeach
+                                        @for ($month = 1; $month <= 12; $month++)
+                                            <td class="text-right">{{ number_format($project->monthly_budgets[$month], 2) }}</td>
+                                        @endfor
                                     </tr>
                                     <tr>
                                         <td><strong>Actual Expenses</strong></td>
-                                        @foreach ($project->monthly_expenses as $expense)
-                                            <td class="text-right">{{ number_format($expense, 2) }}</td>
-                                        @endforeach
+                                        @for ($month = 1; $month <= 12; $month++)
+                                            <td class="text-right">{{ number_format($project->monthly_expenses[$month], 2) }}</td>
+                                        @endfor
                                     </tr>
                                 </tbody>
                             </table>

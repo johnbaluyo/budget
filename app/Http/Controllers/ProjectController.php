@@ -5,9 +5,7 @@ namespace App\Http\Controllers;
 use App\ApprovedBudget;
 use App\Project;
 use App\ProjectMonthlyBudget;
-use App\GAAProject;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class ProjectController extends Controller
 {
