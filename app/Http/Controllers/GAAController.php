@@ -394,6 +394,10 @@ class GAAController extends Controller
                         'date' => $request->date,
                         'realign_from' => $request->gaa_project_id,
                     ]);
+
+                    $gaa_project1 = GAAProject::find($realign_to_gaa_project);
+                    $gaa_project1->budget = $gaa_project1->budget + $request->amount;
+                    $gaa_project1->save();
                 }
             }
 
@@ -407,6 +411,9 @@ class GAAController extends Controller
             ]);
 
             $gaa_project = GAAProject::find($request->gaa_project_id);
+
+            $gaa_project->budget = $gaa_project->budget - ($request->type == 'OUT' ? $request->amount : -$request->amount);
+            $gaa_project->save();
 
             return response()->json(['message' => 'success', 'gaa_id' => $gaa_project->gaa_id]);
         } catch (\Exception $e) {
@@ -561,7 +568,7 @@ class GAAController extends Controller
             $gaaProjectId = $request->gaa_project_id;
             $year = $request->year;
             $monthlyBudgets = json_decode($request->monthly_budgets, true);
-            
+
             if (json_last_error() !== JSON_ERROR_NONE || !is_array($monthlyBudgets)) {
                 return response()->json([
                     'error' => 'Invalid monthly budgets format'
@@ -589,13 +596,13 @@ class GAAController extends Controller
 
             // Validate total doesn't exceed gaa_project budget
             $gaaProject = GAAProject::find($gaaProjectId);
-            
+
             if (!$gaaProject) {
                 return response()->json([
                     'error' => 'GAA Project not found'
                 ], 404);
             }
-            
+
             $totalBudget = $gaaProject->budget;
 
             $totalAllocated = array_sum(array_column($monthlyBudgets, 'budget_amount'));

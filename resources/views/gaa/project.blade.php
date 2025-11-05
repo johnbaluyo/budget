@@ -181,10 +181,11 @@
     {{-- BED modal --}}
     <div class="modal fade" id="bedModal" data-bs-backdrop="static" data-bs-keyboard="false"
         aria-labelledby="bedModalLabel" aria-hidden="true" tabindex="-1">
-        <div class="modal-dialog modal-xl">
+        <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="bedModalLabel">Budget Execution Distribution (BED): <span id="bed_expense_name"></span></h5>
+                    <h5 class="modal-title" id="bedModalLabel">Budget Execution Distribution (BED): <span
+                            id="bed_expense_name"></span></h5>
                     <button class="btn-close" data-bs-dismiss="modal" type="button" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -192,13 +193,14 @@
                     <div class="row form-group mb-3">
                         <div class="col-sm">
                             <label>Total Budget:</label>
-                            <input class="form-control" id="bed_total_budget" name="bed_total_budget" type="text" readonly>
+                            <input class="form-control" id="bed_total_budget" name="bed_total_budget" type="text"
+                                readonly>
                         </div>
                     </div>
                     <div class="row form-group">
                         <div class="col-sm">
                             <label>Monthly Budget Allocation:</label>
-                            <table class="table table-bordered">
+                            <table class="table table-bordered table-sm">
                                 <thead>
                                     <tr>
                                         <th>Month</th>
@@ -210,7 +212,9 @@
                                         <tr>
                                             <td>{{ date('F', mktime(0, 0, 0, $month, 1)) }}</td>
                                             <td>
-                                                <input class="form-control bed-month-input" data-month="{{ $month }}" type="number" step="0.01" min="0" value="0">
+                                                <input class="form-control bed-month-input form-control-sm"
+                                                    data-month="{{ $month }}" type="number" step="0.01"
+                                                    min="0" value="0">
                                             </td>
                                         </tr>
                                     @endfor
@@ -221,7 +225,8 @@
                     <div class="row form-group">
                         <div class="col-sm">
                             <strong>Total Allocated: </strong><span id="bed_total_allocated">0.00</span>
-                            <span id="bed_over_budget_warning" class="text-danger ms-2" style="display: none;">Exceeds budget!</span>
+                            <span id="bed_over_budget_warning" class="text-danger ms-2" style="display: none;">Exceeds
+                                budget!</span>
                         </div>
                     </div>
                 </div>
