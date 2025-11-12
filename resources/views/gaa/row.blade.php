@@ -1,4 +1,3 @@
-{{-- <tr @if ($category['project']['project_name'] != 'PSRTI' && Request::is('gaa*')) style="background-color: #cef5d7;" @endif> --}}
 <tr>
     <td
         style="padding-left: calc(20px * {{ $level }}); font-weight: 
@@ -67,18 +66,6 @@
         <td>
             {{-- budget --}}
             @php $budget_total = 0; @endphp
-            @foreach ($category['expenses'] as $expense)
-                @if (!is_null($expense['realign_from']))
-                    @if (in_array($expense['gaa_project_id'], $ids))
-                        @php $budget_total += $expense['amount']; @endphp
-                    @endif
-                @endif
-                @if (!is_null($expense['realign_to']))
-                    @if (in_array($expense['gaa_project_id'], $ids))
-                        @php $budget_total -= $expense['amount']; @endphp
-                    @endif
-                @endif
-            @endforeach
             @php $gaa_project_budget = App\GaaProject::where('gaa_id', $category['gaa_id'])->where('project_id', $project->id)->pluck('budget')->first(); @endphp
             @php $row_total += $gaa_project_budget; @endphp
             @if ($gaa_project_budget + $budget_total > 0)
@@ -96,7 +83,6 @@
                                 data-remarks="{{ $expense['realign_from'] ?? $expense['realign_to'] }}"
                                 data-type="{{ $expense['type'] }}">
                                 {{ number_format($expense['amount'], 2) }}
-                                @php $row_total += $expense['amount']; @endphp
                             </li>
                         @endif
                     @endif
@@ -115,7 +101,6 @@
                                 data-remarks="{{ $expense['remarks'] }}{{ $expense['realign_from'] ?? $expense['realign_to'] }}"
                                 data-type="{{ $expense['type'] }}">
                                 {{ number_format($expense['amount'], 2) }}
-                                @php $row_total -= $expense['amount']; @endphp
                             </li>
                         @endif
                     @endif
@@ -147,6 +132,8 @@
     <td class="d-flex justify-content-end">
 
         @if (Request::is('project*') && $row_total > 0)
+            <button class="btn btn-sm btn-info"
+                onclick="showBED(`{{ $category['gaa_id'] }}`)">BED</button>&nbsp;|&nbsp;
             <button class="btn btn-sm btn-success"
                 onclick="showTracking(`{{ $category['gaa_id'] }}`)">Tracking</button>&nbsp;|&nbsp;
         @endif
@@ -157,6 +144,12 @@
             </button>
             <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
                 @if (Request::is('gaa*'))
+                    <li>
+                        <a class="dropdown-item"
+                            onclick="showConsolidatedBED(`{{ $category['gaa_id'] }}`,`{{ $category['item_of_expenditure'] }}`)">
+                            <i class="fa fa-calendar-alt text-info"></i> View BED (Consolidated)
+                        </a>
+                    </li>
                     <li>
                         <a class="dropdown-item"
                             onclick="addItemToProject(`{{ $category['gaa_id'] }}`,`{{ $category['item_of_expenditure'] }}`,`{{ $row_total - $category['allocated_budget'] }}`)">
@@ -184,7 +177,6 @@
                         <a class="dropdown-item"
                             onclick="moveToOtherProject(`{{ $category['gaa_id'] }}`,`{{ $project->id }}`)">
                             <i class="fa fa-exchange-alt text-primary"></i>Move Item To Other Project
-                            {{-- to do --}}
                         </a>
                     </li>
                 @endif

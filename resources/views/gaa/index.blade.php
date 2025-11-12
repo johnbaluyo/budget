@@ -284,6 +284,54 @@
         </div>
     </div>
 
+    {{-- Consolidated BED modal --}}
+    <div class="modal fade" id="consolidatedBEDModal" data-bs-backdrop="static" data-bs-keyboard="false"
+        aria-labelledby="consolidatedBEDModalLabel" aria-hidden="true" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="consolidatedBEDModalLabel">Consolidated BED: <span
+                            id="consolidated_bed_item_name"></span></h5>
+                    <button class="btn-close" data-bs-dismiss="modal" type="button" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        <div class="col-sm-12">
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i> This shows the consolidated monthly budget allocation
+                                for this item across all projects.
+                            </div>
+                        </div>
+                    </div>
+                    <input type="hidden" id="consolidated_bed_gaa_id">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <table class="table table-bordered table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Month</th>
+                                        <th>Total Allocation</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="consolidated_bed_tbody">
+                                </tbody>
+                                <tfoot>
+                                    <tr class="table-secondary">
+                                        <th>Grand Total:</th>
+                                        <th>₱<span id="consolidated_bed_grand_total">0.00</span></th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     {{-- manage budget/fund modal --}}
 
     <div class="modal fade" id="budgetModal" data-bs-backdrop="static" data-bs-keyboard="false"

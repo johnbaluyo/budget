@@ -143,8 +143,8 @@
                     </div>
                     <div class="row form-group" id="realignButton" style="display: none;">
                         <div class="col-sm">
-                            <button class="btn btn-ssi btn-lg" id="btn_realign" onclick="updateTracking('OUT')"><span
-                                    class="fa fa-exchange-alt"></span>
+                            <button class="btn btn-ssi btn-lg" id="btn_realign"
+                                onclick="updateTracking('OUT', 'Y')"><span class="fa fa-exchange-alt"></span>
                                 Realign Fund
                                 (OUT)</button>
                         </div>
@@ -152,11 +152,11 @@
                     <div class="row form-group" id="inOutButtons">
                         <div class="col-sm">
                             <button class="btn btn-success btn-block btn-lg" id="btn_in"
-                                onclick="updateTracking('IN')"><span class="fa fa-plus"></span> IN</button>
+                                onclick="updateTracking('IN', 'N')"><span class="fa fa-plus"></span> IN</button>
                         </div>
                         <div class="col-sm">
                             <button class="btn btn-danger btn-block btn-lg" id="btn_out"
-                                onclick="updateTracking('OUT')"><span class="fa fa-minus"></span> OUT</button>
+                                onclick="updateTracking('OUT', 'N')"><span class="fa fa-minus"></span> OUT</button>
                         </div>
                     </div>
                     <div class="row form-group border-top">
@@ -167,13 +167,71 @@
                                     <th>Amount</th>
                                     <th>Activity Date</th>
                                     <th>Remarks</th>
-                                    {{-- <th></th> --}}
                                 </thead>
                                 <tbody id="tracking_tbody">
                                 </tbody>
                             </table>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- BED modal --}}
+    <div class="modal fade" id="bedModal" data-bs-backdrop="static" data-bs-keyboard="false"
+        aria-labelledby="bedModalLabel" aria-hidden="true" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="bedModalLabel">Budget Execution Distribution (BED): <span
+                            id="bed_expense_name"></span></h5>
+                    <button class="btn-close" data-bs-dismiss="modal" type="button" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input id="bed_gaa_project_id" name="bed_gaa_project_id" type="hidden">
+                    <div class="row form-group mb-3">
+                        <div class="col-sm">
+                            <label>Total Budget:</label>
+                            <input class="form-control" id="bed_total_budget" name="bed_total_budget" type="text"
+                                readonly>
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-sm">
+                            <label>Monthly Budget Allocation:</label>
+                            <table class="table table-bordered table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Month</th>
+                                        <th>Budget Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="bed_monthly_tbody">
+                                    @for ($month = 1; $month <= 12; $month++)
+                                        <tr>
+                                            <td>{{ date('F', mktime(0, 0, 0, $month, 1)) }}</td>
+                                            <td>
+                                                <input class="form-control bed-month-input form-control-sm"
+                                                    data-month="{{ $month }}" type="number" step="0.01"
+                                                    min="0" value="0">
+                                            </td>
+                                        </tr>
+                                    @endfor
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-sm">
+                            <strong>Total Allocated: </strong><span id="bed_total_allocated">0.00</span>
+                            <span id="bed_over_budget_warning" class="text-danger ms-2" style="display: none;">Exceeds
+                                budget!</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-success" id="saveBEDButton" onclick="saveBED()">Save BED</button>
                 </div>
             </div>
         </div>
