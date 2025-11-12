@@ -208,10 +208,11 @@
 
         }
 
-        function updateTracking(type) {
+        function updateTracking(type, is_realign) {
             const formData = new FormData();
             formData.append('gaa_project_id', $('#gaa_project_id').val());
             formData.append('type', type);
+            formData.append('is_realign', is_realign);
             formData.append('amount', $('#amount').val());
             formData.append('date', $('#activity_date').val());
             formData.append('remarks', $('#remarks').val());

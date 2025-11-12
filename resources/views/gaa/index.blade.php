@@ -290,14 +290,16 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="consolidatedBEDModalLabel">Consolidated BED: <span id="consolidated_bed_item_name"></span></h5>
+                    <h5 class="modal-title" id="consolidatedBEDModalLabel">Consolidated BED: <span
+                            id="consolidated_bed_item_name"></span></h5>
                     <button class="btn-close" data-bs-dismiss="modal" type="button" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="row mb-3">
                         <div class="col-sm-12">
                             <div class="alert alert-info">
-                                <i class="fas fa-info-circle"></i> This shows the consolidated monthly budget allocation for this item across all projects.
+                                <i class="fas fa-info-circle"></i> This shows the consolidated monthly budget allocation
+                                for this item across all projects.
                             </div>
                         </div>
                     </div>

@@ -143,8 +143,8 @@
                     </div>
                     <div class="row form-group" id="realignButton" style="display: none;">
                         <div class="col-sm">
-                            <button class="btn btn-ssi btn-lg" id="btn_realign" onclick="updateTracking('OUT')"><span
-                                    class="fa fa-exchange-alt"></span>
+                            <button class="btn btn-ssi btn-lg" id="btn_realign"
+                                onclick="updateTracking('OUT', 'Y')"><span class="fa fa-exchange-alt"></span>
                                 Realign Fund
                                 (OUT)</button>
                         </div>
@@ -152,11 +152,11 @@
                     <div class="row form-group" id="inOutButtons">
                         <div class="col-sm">
                             <button class="btn btn-success btn-block btn-lg" id="btn_in"
-                                onclick="updateTracking('IN')"><span class="fa fa-plus"></span> IN</button>
+                                onclick="updateTracking('IN', 'N')"><span class="fa fa-plus"></span> IN</button>
                         </div>
                         <div class="col-sm">
                             <button class="btn btn-danger btn-block btn-lg" id="btn_out"
-                                onclick="updateTracking('OUT')"><span class="fa fa-minus"></span> OUT</button>
+                                onclick="updateTracking('OUT', 'N')"><span class="fa fa-minus"></span> OUT</button>
                         </div>
                     </div>
                     <div class="row form-group border-top">

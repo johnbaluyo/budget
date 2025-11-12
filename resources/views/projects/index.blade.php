@@ -6,7 +6,7 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    <h1 class="m-0">PROJECTS</h1>
+                    <h1 class="display-6">PROJECTS</h1>
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
@@ -24,45 +24,54 @@
         $months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     @endphp
 
-    @forelse ($projects as $project)
-        <div class="row mb-3">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">{{ $project->project_name }}</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-bordered table-sm">
-                                <thead>
-                                    <tr>
-                                        <th class="align-middle"></th>
-                                        @foreach ($months as $month)
-                                            <th class="text-center">{{ $month }}</th>
-                                        @endforeach
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td><strong>Allocated Budget</strong></td>
-                                        @for ($month = 1; $month <= 12; $month++)
-                                            <td class="text-right">{{ number_format($project->monthly_budgets[$month] ?? 0, 2) }}</td>
-                                        @endfor
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Actual Expenses</strong></td>
-                                        @for ($month = 1; $month <= 12; $month++)
-                                            <td class="text-right">{{ number_format($project->monthly_expenses[$month] ?? 0, 2) }}</td>
-                                        @endfor
-                                    </tr>
-                                </tbody>
-                            </table>
+    @if ($projects->count())
+        <div class="accordion" id="projectsAccordion">
+            @foreach ($projects as $project)
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="heading{{ $project->id }}">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#collapse{{ $project->id }}" aria-expanded="false"
+                            aria-controls="collapse{{ $project->id }}">
+                            <h5>{{ $project->project_name }}</h5>
+                        </button>
+                    </h2>
+                    <div id="collapse{{ $project->id }}" class="accordion-collapse collapse"
+                        aria-labelledby="heading{{ $project->id }}">
+                        <div class="accordion-body">
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th class="align-middle"></th>
+                                            @foreach ($months as $month)
+                                                <th class="text-center">{{ $month }}</th>
+                                            @endforeach
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><strong>Allocated Budget</strong></td>
+                                            @for ($month = 1; $month <= 12; $month++)
+                                                <td class="text-right">
+                                                    {{ number_format($project->monthly_budgets[$month] ?? 0, 2) }}</td>
+                                            @endfor
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Actual Expenses</strong></td>
+                                            @for ($month = 1; $month <= 12; $month++)
+                                                <td class="text-right">
+                                                    {{ number_format($project->monthly_expenses[$month] ?? 0, 2) }}</td>
+                                            @endfor
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            @endforeach
         </div>
-    @empty
+    @else
         <div class="row">
             <div class="col-12">
                 <div class="card">
@@ -72,7 +81,5 @@
                 </div>
             </div>
         </div>
-    @endforelse
+    @endif
 @endsection
-
-

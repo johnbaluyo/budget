@@ -338,7 +338,7 @@ class GAAController extends Controller
         try {
             $realign_to_gaa_project = null;
 
-            if ($request->realign_project_id && $request->realign_gaa_id) {
+            if ($request->realign_project_id && $request->realign_gaa_id && $request->is_realign === 'Y') {
                 $realignGaaIdentifier = $request->realign_gaa_id;
 
                 // If the identifier is not numeric, treat it as an item name and ensure a GAA record and GAAProject exist
