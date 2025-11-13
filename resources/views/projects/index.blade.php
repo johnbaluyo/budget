@@ -25,19 +25,19 @@
     @endphp
 
     @if ($projects->count())
-        <div class="accordion" id="projectsAccordion">
+        <div class="accordion col-lg-10 offset-lg-1" id="projectsAccordion">
             @foreach ($projects as $project)
                 <div class="accordion-item">
                     <h2 class="accordion-header" id="heading{{ $project->id }}">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                            data-bs-target="#collapse{{ $project->id }}" aria-expanded="false"
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-b
+                            s-target="#collapse{{ $project->id }}" aria-expanded="false"
                             aria-controls="collapse{{ $project->id }}">
-                            <h5>{{ $project->project_name }}</h5>
+                            <h4>{{ $project->project_name }}</h4>
                         </button>
                     </h2>
                     <div id="collapse{{ $project->id }}" class="accordion-collapse collapse"
                         aria-labelledby="heading{{ $project->id }}">
-                        <div class="accordion-body">
+                        <div class="accordion-body" style="background-color:beige">
                             <div class="table-responsive">
                                 <table class="table table-bordered table-sm">
                                     <thead>
