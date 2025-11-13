@@ -17,25 +17,13 @@
     @if (Request::is('gaa*'))
         {{-- gaa --}}
         <td>
-            @php $budget_total = 0; @endphp
-            @foreach ($category['expenses'] as $expense)
-                @if (!is_null($expense['realign_from']))
-                    @php $budget_total += $expense['amount']; @endphp
-                    @php $row_total += $expense['amount']; @endphp
-                @endif
-                @if (!is_null($expense['realign_to']))
-                    @php $budget_total -= $expense['amount']; @endphp
-                    @php $row_total -= $expense['amount']; @endphp
-                @endif
-            @endforeach
             {{-- // budget --}}
-
-            @php $row_total += $category['allocation']; @endphp
-            @if ($category['allocation'] + $budget_total > 0)
-                {{ number_format($category['allocation'] + $budget_total, 2) }}
+            @if ($category['allocation'] > 0)
+                {{ number_format($category['allocation'], 2) }}
             @endif
         </td>
         <td>
+            {{-- // allocated --}}
             @if ($category['allocation'] > 0)
                 {{ number_format($category['allocated_budget'], 2) }}
             @endif
@@ -54,10 +42,11 @@
                 @endif
             @endforeach
         </td>
-
         <td>
-            @if ($row_total > 0)
-                {{ number_format($row_total - $category['allocated_budget'], 2) }}
+            {{-- balance --}}
+            @php $balance = $category['allocated_budget'] + $row_total; @endphp
+            @if ($category['allocated_budget'] > 0)
+                {{ number_format($balance, 2) }}
             @endif
         </td>
     @else
@@ -84,6 +73,7 @@
                                 data-type="{{ $expense['type'] }}">
                                 {{ number_format($expense['amount'], 2) }}
                             </li>
+                            @php $row_total += $expense['amount']; @endphp
                         @endif
                     @endif
                 @endforeach
@@ -102,6 +92,7 @@
                                 data-type="{{ $expense['type'] }}">
                                 {{ number_format($expense['amount'], 2) }}
                             </li>
+                            @php $row_total -= $expense['amount']; @endphp
                         @endif
                     @endif
                 @endforeach
@@ -116,7 +107,7 @@
                         <li class="hover-text" data-id="{{ $expense['id'] }}" data-activity="{{ $expense['date'] }}"
                             data-remarks="{{ $expense['remarks'] }}" data-type="{{ $expense['type'] }}">
                             {{ $expense['type'] == 'IN' ? '+' : '-' }} {{ number_format($expense['amount'], 2) }}
-                            @php $row_total -= $expense['amount']; @endphp
+                            @php $row_total += $expense['type'] == 'IN' ? $expense['amount'] : -$expense['amount']; @endphp
                         </li>
                     @endif
                 @endforeach
