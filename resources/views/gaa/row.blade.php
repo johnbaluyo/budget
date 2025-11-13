@@ -144,12 +144,12 @@
             </button>
             <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
                 @if (Request::is('gaa*'))
-                    <li>
+                    {{-- <li>
                         <a class="dropdown-item"
                             onclick="showConsolidatedBED(`{{ $category['gaa_id'] }}`,`{{ $category['item_of_expenditure'] }}`)">
                             <i class="fa fa-calendar-alt text-info"></i> View BED (Consolidated)
                         </a>
-                    </li>
+                    </li> --}}
                     <li>
                         <a class="dropdown-item"
                             onclick="addItemToProject(`{{ $category['gaa_id'] }}`,`{{ $category['item_of_expenditure'] }}`,`{{ $row_total - $category['allocated_budget'] }}`)">
