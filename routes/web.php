@@ -14,13 +14,13 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::get('/', 'ApiController@redirectToLogin');
 Auth::routes();
 
 // Redirect root to a relative 'login' path so the redirect works when the app
 // is served from a subdirectory (e.g. http://server/budget). Using a relative
 // redirect avoids calling the URL generator / named route during route file
 // loading which can cause issues with artisan optimize.
-Route::get('/', 'Api\UserController@redirectToLogin');
 
 Route::get('/home', 'HomeController@index')->name('home');
 

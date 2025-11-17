@@ -360,6 +360,7 @@ class GAAController extends Controller
                         $gaaItem->object_type = $request->realign_object_type;
                         $gaaItem->fund_cluster = $request->realign_fund_cluster;
                         $gaaItem->approved_budget_id = $approved_budget_id;
+                        $gaaItem->budget_allocation = $request->amount;
                         $gaaItem->save();
                     }
 

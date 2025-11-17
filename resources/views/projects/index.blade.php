@@ -29,8 +29,8 @@
             @foreach ($projects as $project)
                 <div class="accordion-item">
                     <h2 class="accordion-header" id="heading{{ $project->id }}">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-b
-                            s-target="#collapse{{ $project->id }}" aria-expanded="false"
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#collapse{{ $project->id }}" aria-expanded="false"
                             aria-controls="collapse{{ $project->id }}">
                             <h4>{{ $project->project_name }}</h4>
                         </button>
