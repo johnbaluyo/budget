@@ -7,10 +7,6 @@ use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
-    public function redirectToLogin()
-    {
-        return redirect('login');
-    }
 
     public function getUser(Request $request)
     {
