@@ -24,8 +24,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        if (request()->is('budget/*')) {
-            URL::forceRootUrl(config('app.url'));
+        if(config('app.env') === 'production') {
+            URL::forceScheme('https');
+
         }
     }
 }
